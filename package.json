@@ -1,0 +1,19 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stonksDB/backend.git"
+  },
+  "author": "Riccardo Rigoni, Sebastian Cavada",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/stonksDB/backend/issues"
+  },
+  "homepage": "https://github.com/stonksDB/backend#readme"
+}
