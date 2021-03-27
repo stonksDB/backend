@@ -1,6 +1,3 @@
-var mysql = require('../db/mysql').pool;
-
-
 module.exports = (req, res) => {
   stocks = req.params.ticker
 
