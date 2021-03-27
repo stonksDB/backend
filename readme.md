@@ -11,3 +11,7 @@ To start just run "npm start".
 If it does not work try the following:
 
 1. run "npm install -g node-dev"
+
+## Development
+
+Standard for endpoints -> "https://scotch.io/tutorials/keeping-api-routing-clean-using-express-routers"
