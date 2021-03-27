@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node-dev app.js"
   },
   "repository": {
     "type": "git",
@@ -15,5 +16,10 @@
   "bugs": {
     "url": "https://github.com/stonksDB/backend/issues"
   },
-  "homepage": "https://github.com/stonksDB/backend#readme"
+  "homepage": "https://github.com/stonksDB/backend#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "mysql": "^2.18.1",
+    "node-dev": "^6.6.0"
+  }
 }
