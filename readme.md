@@ -15,3 +15,4 @@ If it does not work try the following:
 ## Development
 
 Standard for endpoints -> "https://scotch.io/tutorials/keeping-api-routing-clean-using-express-routers"
+Connection to mysql pool -> "https://stackoverflow.com/questions/18496540/node-js-mysql-connection-pooling/18496936"
