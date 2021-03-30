@@ -1,6 +1,10 @@
-const pool = import('../../db/postgres/index.js')
+var pool = require('../../db/postgres').pool;
+
+//import { pool } from ('../../db/postgres')
 
 module.exports = (req, res) => {
+
+  //import { pool } from ('../../db/postgres')
 
   pool.connect((err, client, release) => {
 
@@ -11,12 +15,10 @@ module.exports = (req, res) => {
       release()
       if (err) {
         return console.error('Error executing query', err.stack)
-      }
+      }      
 
-      console.log(result.rows)
-
-      var stock = req.params.ticker
-      res.status(200).json({ "ticker": stock });
+      //var stock = req.params.ticker
+      res.status(200).json({ "ticker": result.rows });
 
     })
 
