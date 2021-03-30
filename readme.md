@@ -10,7 +10,8 @@ To start just run "npm start".
 
 If it does not work try the following:
 
-1. run "npm install -g node-dev"
+1. run "npm install"
+2. run "npm install -g node-dev"
 
 ## Development
 

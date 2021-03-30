@@ -9,5 +9,3 @@ app.use('/', routes)
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`)
 })
-
-//https://scotch.io/tutorials/keeping-api-routing-clean-using-express-routers
