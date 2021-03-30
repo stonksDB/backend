@@ -1,6 +1,4 @@
-const { Pool } = require('pg')
-
-const pool = new Pool()
+const pool = import('../../db/postgres/index.js')
 
 module.exports = (req, res) => {
 
@@ -14,11 +12,13 @@ module.exports = (req, res) => {
       if (err) {
         return console.error('Error executing query', err.stack)
       }
-      
+
+      console.log(result.rows)
+
       var stock = req.params.ticker
       res.status(200).json({ "ticker": stock });
-      
+
     })
 
-  })  
+  })
 };
