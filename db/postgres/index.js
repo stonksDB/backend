@@ -8,7 +8,7 @@ const pool = new Pool({
     password: config.password,
     database: config.database,
     port: 5432,
-    max: 100,
+    max: 20,
     idleTimeoutMillis: 30000,
     connectionTimeoutMillis: 2000,
 })
