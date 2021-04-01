@@ -4,6 +4,7 @@ const sequelize = require('../db/postgres').sequelize;
 
 const modelDefiners = [
 	require('./models/stock.model'),
+	require('./models/history.model')
 	// require('./models/instrument.model'),
 	// require('./models/orchestra.model'),
 	// Add more models here...

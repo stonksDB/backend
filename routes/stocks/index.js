@@ -14,8 +14,7 @@ async function getStocksByMic(req, res) {
 
     try {
 
-        const stocks = await models.stock.findAll(query);
-        const total = await models.stock.count();
+        const {total, stocks} = await models.stock.findAndCountAll(query);
 
         const result = {
             data: {
