@@ -39,3 +39,4 @@ This end-point allows to retrieve data to be shown in the application. It provid
 Standard for endpoints -> "https://scotch.io/tutorials/keeping-api-routing-clean-using-express-routers"
 Connection to postgres pool -> "https://node-postgres.com/features/connecting"
 Sequelize for real ORM -> "https://sequelize.org/master/index.html"
+Multiple repository push -> "https://gist.github.com/rvl/c3f156e117e22a25f242"

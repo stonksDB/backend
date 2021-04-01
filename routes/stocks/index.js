@@ -14,7 +14,7 @@ async function getStocksByMic(req, res) {
 
     try {
 
-        const {total, stocks} = await models.stock.findAndCountAll(withParameters);
+        const {count, rows} = await models.stock.findAndCountAll(withParameters);
 
         const result = {
             data: {
@@ -23,7 +23,7 @@ async function getStocksByMic(req, res) {
             pageable: {
                 offset: offset,
                 limit: limit,
-                total: total
+                total: count
             }
         }
 
