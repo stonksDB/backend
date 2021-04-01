@@ -27,7 +27,7 @@ async function getHistoryByTicker(req, res) {
 
         res.status(200).json(result);
     } catch (error) {
-        console.log("there was an error test", error)
+        console.log("there was an error", error)
     }
 
 };
