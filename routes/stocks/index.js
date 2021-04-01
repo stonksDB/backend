@@ -10,11 +10,11 @@ async function getStocksByMic(req, res) {
     var limit = req.query.limit ?? 5
     var mic = req.params.mic ?? "*"
 
-    const query = buildQuery(mic, offset, limit);
+    const withParameters = buildQuery(mic, offset, limit);
 
     try {
 
-        const {total, stocks} = await models.stock.findAndCountAll(query);
+        const {total, stocks} = await models.stock.findAndCountAll(withParameters);
 
         const result = {
             data: {

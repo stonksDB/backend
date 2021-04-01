@@ -10,11 +10,11 @@ async function getHistoryByTicker(req, res) {
     const from = req.query.from ?? 0
     const to = req.query.to ?? Date.now()
 
-    const query = buildQuery(ticker, from, to);    
+    const withParameters = buildQuery(ticker, from, to);    
 
     try {
 
-        const { count, rows } = await models.history.findAndCountAll(query);
+        const { count, rows } = await models.history.findAndCountAll(withParameters);
 
         const result = {
             data: {
