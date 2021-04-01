@@ -8,7 +8,7 @@ routes.use('/history', history)
 
 
 routes.get('/', (req, res) => {
-  res.status(200).json({ message: 'Connected! AS soon as possible' });
+  res.status(200).json({ message: 'Connected! Working!' });
 });
 
 module.exports = routes;
