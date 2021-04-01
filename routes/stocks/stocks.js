@@ -1,9 +1,8 @@
 const { models } = require('../../sequelize');
 
-module.exports = async (req, res) => {
+module.exports = async (req, res) => {  
 
   try {
-
     const stocks = await models.stock.findAll({
       where: {
         mic: req.params.mic
@@ -14,6 +13,5 @@ module.exports = async (req, res) => {
   } catch (error) {
     console.log("there was an error", error)
   }
-
 
 };
