@@ -40,3 +40,12 @@ Standard for endpoints -> "https://scotch.io/tutorials/keeping-api-routing-clean
 Connection to postgres pool -> "https://node-postgres.com/features/connecting"
 Sequelize for real ORM -> "https://sequelize.org/master/index.html"
 Multiple repository push -> "https://gist.github.com/rvl/c3f156e117e22a25f242"
+
+## Backend description
+
+The backend is implemented with the well known javascript runtime NodeJS (https://nodejs.org/en/). Some libraries are used to implement at best the architecture: ExpressJS is used to handle api request and create the adequate endpoint routes. In order to make the server a real MVC oriented infrastructure an ORM framework has been utilized: Sequelize. It allows to create object with Javascript and make bidirectional relation with a SQL database which is used in the infrastructure. In order to connect to the database a plugin called "pg" has been utilized. In order to take advantage the connection with the database we leveraged the power of the "pool" connections. Since we aim to get an high number of requests per second it was fundamental for us to get this kind of speedup.
+
+## Future implementations
+
+Our road map for the future is very loaded in the sense that we have a lot of ideas ad proposal that we would like to develop. Our priority anyhow is to develop a portfolio management system, in which a user can keep track of his/her investments and have an overview of the gains or losses. Our second aim is also to be able to provide different type of assets from crypto to currencies and securities. For this we have to make some deep changes to the database in order to abstract the concept away from just stocks.
+If we still have time our goal is to build the FIRST EVER IN THE WORLD peer stock exchange open 24/7. The idea is to make accessible to all our members the opportunity to sell the assets to other registered users, through a peer market exchange.

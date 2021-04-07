@@ -21,6 +21,7 @@
     "express": "^4.17.1",
     "node-dev": "^6.6.0",
     "pg": "^8.5.1",
-    "sequelize": "^6.6.2"
+    "sequelize": "^6.6.2",
+    "yahoo-finance": "^0.3.7"
   }
 }
