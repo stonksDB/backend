@@ -7,14 +7,17 @@ async function getHistoryByTicker(req, res) {
 
     const ticker = req.params.ticker;
     const from = req.query.from ?? 0
-    const to = req.query.to ?? Date.now()
+    const to = req.query.to ?? Date.now()    
 
-    console.log(ticker)
+    var fromDate = new Date(from).toISOString().slice(0, 10);
+    var toDate = new Date(to).toISOString().slice(0, 10);
+
+    console.log(new Date(from).toISOString())
 
     yf.historical({
         symbol: ticker,
-        from: '2012-01-01',
-        to: '2012-12-31',
+        from: fromDate,
+        to: toDate,
         period: 'd'  // 'd' (daily), 'w' (weekly), 'm' (monthly), 'v' (dividends only)
     }, function (err, quotes) {
         if (err) {
