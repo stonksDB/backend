@@ -40,6 +40,7 @@ Standard for endpoints -> "https://scotch.io/tutorials/keeping-api-routing-clean
 Connection to postgres pool -> "https://node-postgres.com/features/connecting"
 Sequelize for real ORM -> "https://sequelize.org/master/index.html"
 Multiple repository push -> "https://gist.github.com/rvl/c3f156e117e22a25f242"
+Swagger implementation -> "https://blog.logrocket.com/documenting-your-express-api-with-swagger/"
 
 ## Backend description
 
