@@ -1,11 +1,19 @@
 const express = require('express')
 const app = express()
 const routes = require('./routes')
+const bodyParser = require("body-parser")
+const swaggerUi = require('swagger-ui-express')
+const swaggerDocument = require('./swagger.json')
+var swaggerJSDoc = require('swagger-jsdoc')
 
 const port = 8082
 
-app.use('/', routes)
+const specs = swaggerJSDoc(swaggerDocument)
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
+
+app.use('/api/', routes)
 
 app.listen(port, () => {
-  console.log(`Example app listening at http://localhost:${port}` )
+  console.log(`Example app listening at http://localhost:${port}`)
 })

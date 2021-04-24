@@ -1,32 +1,38 @@
 const stocks = require('express').Router();
-var yf = require('yahoo-finance');
+const baseUrl = "127.0.0.1:5000"
+//const baseUrl = "25.68.176.166"
+
+const axios = require('axios')
 
 stocks.get("/:ticker", getHistoryByTicker);
 
 async function getHistoryByTicker(req, res) {
 
     const ticker = req.params.ticker;
-    const from = req.query.from ?? 0
-    const to = req.query.to ?? Date.now()    
+    const from = req.query.from ?? Date.now() - 8640000
+    const to = req.query.to ?? Date.now()
+    const period = req.query.period ?? 'd'
 
     var fromDate = new Date(from).toISOString().slice(0, 10);
     var toDate = new Date(to).toISOString().slice(0, 10);
 
-    console.log(new Date(from).toISOString())
+    const options = {
+        baseUrl: baseUrl,
+        method: 'get',
+        url: '/history',
+    }
 
-    yf.historical({
-        symbol: ticker,
-        from: fromDate,
-        to: toDate,
-        period: 'd'  // 'd' (daily), 'w' (weekly), 'm' (monthly), 'v' (dividends only)
-    }, function (err, quotes) {
-        if (err) {
-            console.log(err);
-        }
-        else {
-            res.status(200).json(quotes);
-        }
-    });
+    axios.defaults.port = 5000;
+    axios.get("http://localhost:5000/history", { params: { req } })
+        .then(resP => {
+            console.log(resP)
+            res.send(resP.data)
+        })
+        .catch(error => {
+            res.send(error)
+            console.log();
+        });
+
 };
 
 module.exports = stocks;
