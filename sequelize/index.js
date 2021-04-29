@@ -6,7 +6,7 @@ const modelDefiners = [
 	require('./models/stock.model'),
 	require('./models/history.model'),
 	require('./models/news.model'),
-	require('./models/company.model')
+	//require('./models/company.model')
 ];
 
 // We define all models according to their files.
