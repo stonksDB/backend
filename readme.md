@@ -44,7 +44,7 @@ Swagger implementation -> "https://blog.logrocket.com/documenting-your-express-a
 
 ## Backend description
 
-The backend is implemented with the well known javascript runtime NodeJS (https://nodejs.org/en/). Some libraries are used to implement at best the architecture: ExpressJS is used to handle api request and create the adequate endpoint routes. In order to make the server a real MVC oriented infrastructure an ORM framework has been utilized: Sequelize. It allows to create object with Javascript and make bidirectional relation with a SQL database which is used in the infrastructure. In order to connect to the database a plugin called "pg" has been utilized. In order to take advantage the connection with the database we leveraged the power of the "pool" connections. Since we aim to get an high number of requests per second it was fundamental for us to get this kind of speedup.
+The backend is implemented with the well known javascript runtime NodeJS ("https://nodejs.org/en/"). Some libraries are used to implement at best the architecture: ExpressJS is used to handle api request and create the adequate endpoint routes. In order to make the server a real MVC oriented infrastructure an ORM framework has been utilized: Sequelize. It allows to create object with Javascript and make bidirectional relation with a SQL database which is used in the infrastructure. In order to connect to the database a plugin called "pg" has been utilized. In order to take advantage the connection with the database we leveraged the power of the "pool" connections. Since we aim to get an high number of requests per second it was fundamental for us to get this kind of speedup.
 
 ## Future implementations
 
