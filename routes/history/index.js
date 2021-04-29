@@ -11,7 +11,7 @@ async function getHistoryByTicker(req, res) {
     const ticker = req.params.ticker;
     const from = req.query.from ?? Date.now() - 8640000
     const to = req.query.to ?? Date.now()
-    const period = req.query.period ?? 'd'
+    const period = req.query.period ?? '1d'
 
     var fromDate = new Date(from).toISOString().slice(0, 10);
     var toDate = new Date(to).toISOString().slice(0, 10);
@@ -23,7 +23,7 @@ async function getHistoryByTicker(req, res) {
     }
 
     axios.defaults.port = 5000;
-    axios.get("http://localhost:5000/history", { params: { req } })
+    axios.get("http://localhost:5000/history/" + ticker, { params: { "period": period } })
         .then(resP => {
             console.log(resP)
             res.send(resP.data)
