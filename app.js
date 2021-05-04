@@ -12,7 +12,7 @@ const specs = swaggerJSDoc(swaggerDocument)
 
 app.use('/api/', routes)
 
-app.get('/', swaggerUi.serve, swaggerUi.setup(specs));
+app.use('/', swaggerUi.serve, swaggerUi.setup(specs));
 
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`)
