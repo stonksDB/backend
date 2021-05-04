@@ -4,7 +4,7 @@ module.exports = (sequelize) => {
 
     sequelize.define('company', {
 
-         ticker: {
+        ticker: {
             type: DataTypes.STRING(8),
             allowNull: false,
             primaryKey: true

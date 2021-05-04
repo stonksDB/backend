@@ -13,12 +13,31 @@ module.exports = (sequelize) => {
             type: DataTypes.STRING(10),
             allowNull: false
         },
-        price: {
+        regular_market_price: {
             type: DataTypes.DOUBLE,
             allowNull: true
+        },       
+        name: {
+            type: DataTypes.STRING(80)
         },
-        last_update: {
-            type: DataTypes.DATE
-        }
+        market_cap: {
+            type: DataTypes.INTEGER
+        },
+        logo_url: {
+            type: DataTypes.STRING(200)
+        },
+        city: {
+            type: DataTypes.STRING(50)
+        },
+        industry_id: {
+            type: DataTypes.INTEGER
+        },
+        website: {
+            type: DataTypes.STRING(200)
+        },
+        phone: {
+            type: DataTypes.STRING(25)
+        }        
+
     })
 }
