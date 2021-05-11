@@ -1,0 +1,31 @@
+{
+    "definition": {
+        "openapi": "3.0.0",
+        "info": {
+            "title": "Stonxs API with Swagger",
+            "version": "0.1.0",
+            "description": "This is a simple CRUD API application made with Express and documented with Swagger",
+            "license": {
+                "name": "MIT",
+                "url": "https://spdx.org/licenses/MIT.html"
+            },
+            "contact": {
+                "name": "Stonxs",
+                "url": "https://stonksdb.github.io/stonx_frontend/#/",
+                "email": "stonxsdb@gmail.com"
+            }
+        },
+        "servers": [
+            {
+                "url": "http://25.68.176.166:8082/api"
+            }
+        ]
+    },
+    "apis": [
+        "./routes/company/index.js",
+        "./routes/history/index.js",
+        "./routes/news/index.js",
+        "./routes/search/index.js",
+        "./routes/stocks/index.js"
+    ]
+}

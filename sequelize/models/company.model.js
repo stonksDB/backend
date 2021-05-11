@@ -10,23 +10,30 @@ module.exports = (sequelize) => {
             primaryKey: true
         },
         company_name: {
-            type: DataTypes.STRING(80),
-            allowNull: false
-        },
-        logo_url: {
-            type: DataTypes.STRING(250),
-            allowNull: false
+            type: DataTypes.STRING(80)
         },
         market_cap: {
-            type: DataTypes.BIGINT,
-            allowNull: true
+            type: DataTypes.INTEGER
         },
-        price: {
-            type: DataTypes.DOUBLE,
-            allowNull: true
+        logo_url: {
+            type: DataTypes.STRING(200)
         },
-        last_update: {
-            type: DataTypes.DATE
+        full_time_employees: {
+            type: DataTypes.INTEGER
+        },
+        city: {
+            type: DataTypes.STRING(50)
+        },
+        industry_id: {
+            type: DataTypes.INTEGER
+        },
+        website: {
+            type: DataTypes.STRING(200)
+        },
+        phone: {
+            type: DataTypes.STRING(25)
         }
+    }, {
+        tableName: 'companies'
     })
 }
