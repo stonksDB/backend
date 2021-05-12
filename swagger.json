@@ -26,6 +26,7 @@
         "./routes/history/index.js",
         "./routes/news/index.js",
         "./routes/search/index.js",
-        "./routes/stocks/index.js"
+        "./routes/stocks/index.js",
+        "./routes/auth/register/index.js"
     ]
 }

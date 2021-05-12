@@ -38,6 +38,7 @@ module.exports = (sequelize) => {
         phone: {
             type: DataTypes.STRING(25)
         }        
-
+    }, {
+        tableName:"past_values"
     })
 }

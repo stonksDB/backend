@@ -1,6 +1,5 @@
-var config = require('../../config/config.json')
-
-const { Sequelize } = require('sequelize');
+const config = require('../../config/config.json')
+const Sequelize = require('sequelize');
 
 // Option 2: Passing parameters separately (other dialects)
 const sequelize = new Sequelize(config.database, config.user, config.password, {
@@ -17,7 +16,7 @@ const sequelize = new Sequelize(config.database, config.user, config.password, {
     }
 });
 
-exports.sequelize = sequelize;
+module.exports = sequelize;
 
 // const { Pool } = require('pg')
 

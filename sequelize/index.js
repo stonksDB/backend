@@ -1,15 +1,18 @@
 const { applyExtraSetup } = require('./extra-setup');
 
-const sequelize = require('../db/postgres').sequelize;
+// for the connection with the postgres db
+const sequelize = require('../db/postgres');
 
+// defines the models to be matched
 const modelDefiners = [
 	require('./models/stock.model'),
 	require('./models/history.model'),
 	require('./models/news.model'),
+	require('./models/share_holder.model')
 	//require('./models/company.model')
 ];
 
-// We define all models according to their files.
+// define model and attach to sequelize
 for (const modelDefiner of modelDefiners) {
 	modelDefiner(sequelize);
 }

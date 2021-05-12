@@ -1,0 +1,68 @@
+{
+  "title": "User Registration",
+  "description": "A new user registering in the application",
+  "type": "object",
+  "definitions": {
+      "non-empty-string": {
+          "type": "string",
+          "minLength": 1
+      },
+      "name-string": {
+          "$ref": "#/definitions/non-empty-string",
+          "type": "string",
+          "maxLength": 255,
+          "pattern": "^[a-zA-Z ]+$"
+      },
+      "date-string": {
+          "type": "string",
+          "pattern": "^(0[1-9]|[12][0-9]|3[01])[- /.](0[1-9]|1[012])[- /.](19|20)\\d\\d$"
+      },
+      "email-string": {
+          "type": "string",
+          "pattern": "^\\S+@\\S+\\.\\S+$",
+          "minLength": 6,
+          "maxLength": 254
+      },
+      "password-string": {
+          "type": "string",
+          "minLength": 12,
+          "maxLength": 255
+      }
+  },
+  "properties": {
+    "firstName": {
+      "description": "First name of the user",
+      "$ref": "#/definitions/name-string"
+    },
+    "lastName": {
+      "description": "Last name of the user",
+       "$ref": "#/definitions/name-string"
+    },
+    "dob": {
+      "description": "Date of birth of the user",
+       "$ref": "#/definitions/date-string"
+    },
+    "country": {
+      "description": "Country where the user lives",
+      "$ref": "#/definitions/name-string"
+    },
+    "email": {
+      "description": "Email of the user",
+       "$ref": "#/definitions/email-string"
+    },
+    "confirmationEmail": {
+      "description": "Confirmation email of the user",
+       "$ref": "#/definitions/email-string"
+    },
+    "password": {
+      "description": "Password of the user",
+  "$ref": "#/definitions/password-string"
+    },
+    "confirmationPassword": {
+      "description": "Confirmation password of the user",
+       "$ref": "#/definitions/password-string"
+    }
+  },
+  "additionalProperties": false,
+  "required": ["firstName", "lastName", "dob", "country", "email", "confirmationEmail", "password", "confirmationPassword"]
+}

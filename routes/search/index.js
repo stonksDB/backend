@@ -26,8 +26,8 @@ async function getSearchSuggestions(req, res) {
 
     try {
 
-        rows_ticker = await models.stock.findAll(withParametersTicker);
-        rows_name = await models.stock.findAll(withParametersName);
+        const rows_ticker = await models.stock.findAll(withParametersTicker);
+        const rows_name = await models.stock.findAll(withParametersName);
 
         const result = {
             tickers: rows_ticker,
