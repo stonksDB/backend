@@ -81,6 +81,18 @@ let withEmail = (key) => {
 }
 
 /**
+ * Returns the hash value of the input password
+ * @param {String} password - password to be hashed
+ * @returns {String} hash value
+ */
+
+ const getHashedPassword = (password) => {
+  const sha256 = crypto.createHash('sha256');
+  const hash = sha256.update(password).digest('base64');
+  return hash;
+}
+
+/**
  * 
  * @param {String} body body request from the user 
  * @param {Integer} nextIndex next index for the nex user
@@ -95,13 +107,14 @@ let withEmail = (key) => {
     dob: dob,
     country: country, 
     email: email,
-    password: password
+    password: getHashedPassword(password)
   };
   
-  console.log("new instance created: " + dict)
   dict.additionalField = 0;
   return dict;
  }
+
+
 
 /**
  * Checks if the is already an account associated with the email address
@@ -127,19 +140,6 @@ let withEmail = (key) => {
     });
   };
  };
- 
-/**
- * Returns the hash value of the input password
- * @param {String} password - password to be hashed
- * @returns {String} hash value
- */
-
- const getHashedPassword = (password) => {
-  const sha256 = crypto.createHash('sha256');
-  const hash = sha256.update(password).digest('base64');
-  return hash;
-}
-
 
 auth.post("/", validateSchema("new-user"), checkEmailPasswordMatches(), checkEmailAvailable(), registerNewUser());
 
