@@ -13,7 +13,8 @@ ajv.addSchema(registrationSchema, 'new-user')
 // db interaction 
 // const { models } = require('../../../sequelize');
 const sequelize = require('../../../sequelize');
-const { Op } = require('sequelize');
+const { Op, json } = require('sequelize');
+const { stringify } = require('querystring');
 
 
 /**
@@ -62,38 +63,45 @@ let withEmail = (key) => {
 }
 
 /**
- * Checks the input email address is already associated to an account
- * @param {String} email - to be checked
- * @return {Boolean} - true if account not already associated
- */
-function emailAvailable(email){
-  let isValid = true;
-  try {
-      sequelize.models.share_holder.findOne(withEmail(email)).then(result => {
-        if(!(result === undefined || result === null)) {
-          console.log("No account associated");
-          isValid = false;
-        }
-    });
-  } catch (error) {
-      console.log("Error at registration phase\n", error)
-  }
-  return isValid;
-};
-
-/**
  * Checks if the is already an account associated with the email address
  * @returns {Object} response
  */
  let checkEmailAvailable = () => {
   return (req, res, next) => {
     const { email } = req.body;
-    if(!emailAvailable(email)) {
-      return res.status(400).send("Email already in use!");
-    }
-  next()
+    return sequelize.models.share_holder.findOne(withEmail(email)).then(result => {
+      if(result)
+        res.status(400).send("Email already used");
+      else {  
+        console.log("Email not used... could proced!")
+        next()
+      }
+    });
   }
 }
+
+/**
+ * 
+ * @param {String} body body request from the user 
+ * @param {Integer} nextIndex next index for the nex user
+ * @returns 
+ */
+ let withData = (body, nextIndex) => {
+  const { firstName, lastName, dob, country, email, password } = body;
+  const dict = {
+    share_holder_id: nextIndex,
+    first_name: firstName,
+    last_name: lastName,
+    dob: dob,
+    country: country, 
+    email: email,
+    password: password
+  };
+  
+  console.log("new instance created: " + dict)
+  dict.additionalField = 0;
+  return dict;
+ }
 
 /**
  * Checks if the is already an account associated with the email address
@@ -101,34 +109,24 @@ function emailAvailable(email){
  */
  let registerNewUser = () => {
   return (req, res) => {
-    insertNewUser(req, res);
-  }
- }
-
- let bodyToDict = (body) => {
-  const dict = {};
-  for (let [key, value] of Object.entries(body)) {
-      dict[key] = value;
-  }
-  dict.additionalField = 0;
-  return dict;
- }
-
-async function insertNewUser(req, res) {
-  sequelize.transaction();
-  //const { firstName, lastName, dob, country, email, password} = req.body;
-  /*const t = await sequelize.connection.transaction();
-  return sequelize.transaction(() => {
-    return share_holder.create(bodyToDict(req.body), {transaction: t})
-  }).then(result => {
-        res.status(200).send("user added successfully");
-    }).catch(error => {
-        console.log(error);
-        t.rollback();
-        res.status(500).send("user not added");
+    return sequelize.models.share_holder.findOne({
+      order: [['share_holder_id', 'DESC']],
+      attributes: ['share_holder_id']
+    }).then(last_inserted_share_holder => {
+      console.log("Share_holder_id from result: " + last_inserted_share_holder.share_holder_id)
+      // save data of the new user
+      return sequelize.transaction(function (t) {
+        return sequelize.models.share_holder.create(withData(req.body, last_inserted_share_holder.share_holder_id + 1), {transaction: t})
+      }).then(function (result) {
+        // Transaction has been committed
+        return res.status(200).send("Successfully added new user\n" + stringify(result));
+      }).catch(function (err) {
+        // Transaction has been rolled back
+        return res.status(400).send("Fail to insert the new user\n" + stringify(err))
+      });
     });
-  */
-};
+  };
+ };
  
 /**
  * Returns the hash value of the input password
