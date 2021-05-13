@@ -54,12 +54,11 @@ let checkEmailPasswordMatches = () => {
  * @returns {Object} - query object
  */
 let withEmail = (key) => {
-  const query = {
+  return {
     where: {
         email: key
     }
   }
-  return query;
 }
 
 /**
@@ -71,14 +70,11 @@ let withEmail = (key) => {
     const { email } = req.body;
     return sequelize.models.share_holder.findOne(withEmail(email)).then(result => {
       if(result)
-        res.status(400).send("Email already used");
-      else {  
-        console.log("Email not used... could proced!")
-        next()
+        res.status(400).send(`Email ${email} is already in use`);
+      next();
       }
-    });
-  }
-}
+    )};
+  };
 
 /**
  * Returns the hash value of the input password
@@ -88,8 +84,7 @@ let withEmail = (key) => {
 
  const getHashedPassword = (password) => {
   const sha256 = crypto.createHash('sha256');
-  const hash = sha256.update(password).digest('base64');
-  return hash;
+  return sha256.update(password).digest('base64');
 }
 
 /**
@@ -126,7 +121,6 @@ let withEmail = (key) => {
       order: [['share_holder_id', 'DESC']],
       attributes: ['share_holder_id']
     }).then(last_inserted_share_holder => {
-      console.log("Share_holder_id from result: " + last_inserted_share_holder.share_holder_id)
       // save data of the new user
       return sequelize.transaction(function (t) {
         return sequelize.models.share_holder.create(withData(req.body, last_inserted_share_holder.share_holder_id + 1), {transaction: t})
@@ -142,6 +136,5 @@ let withEmail = (key) => {
  };
 
 auth.post("/", validateSchema("new-user"), checkEmailPasswordMatches(), checkEmailAvailable(), registerNewUser());
-
 
 module.exports = auth;
