@@ -1,19 +1,16 @@
 const register = require('express').Router();
-// parse cookies - personalize response
-const cookieParser = require('cookie-parser');
-const bodyParser = require('body-parser');
+
 // hash password - increase system security
 const crypto = require('crypto');
+
 // body validation - json schema validation
 const Ajv = require('ajv')
 const ajv = new Ajv({removeAdditional:'all' })
 const registrationSchema = require('./registration_schema.json');
-const { doesNotMatch } = require('assert');
 ajv.addSchema(registrationSchema, 'new-user')
-// db interaction 
-// const { models } = require('../../../sequelize');
+
+// db interaction
 const sequelize = require('../../../sequelize');
-const { Op, json } = require('sequelize');
 const { stringify } = require('querystring');
 
 /**
@@ -77,12 +74,14 @@ let withEmail = (key) => {
  let checkEmailAvailable = () => {
   return (req, res, next) => {
     const { email } = req.body;
-    return sequelize.models.share_holder.findOne(withEmail(email)).then(result => {
-      if(result)
-        return res.status(400).send(`Email ${email} is already in use`);
-      next();
-      }
-    )};
+    return sequelize.models.share_holder
+      .findOne(withEmail(email))
+      .then(result => {
+        if(result)
+          return res.status(400).send(`Email ${email} is already in use`);
+        next();
+        }
+      )};
   };
 
 /**
@@ -121,40 +120,65 @@ let withEmail = (key) => {
 
 
 /**
- * Checks if the is already an account associated with the email address
- * @returns {Object} response
+ * Add new user 
+ * @returns 400 - Internal Server Error during the db update
  */
  let registerNewUser = () => {
   return (req, res, next) => {
-    return sequelize.models.share_holder.findOne({
-      order: [['share_holder_id', 'DESC']],
-      attributes: ['share_holder_id']
-    }).then(last_inserted_share_holder => {
-      // save data of the new user
-      return sequelize.transaction(function (t) {
-        return sequelize.models.share_holder.create(withData(req.body, last_inserted_share_holder.share_holder_id + 1), {transaction: t})
-      }).then(function (result) {
-        // Transaction has been committed
-        //return res.status(200).send("Successfully added new user\n" + stringify(result));
-        next();
-      }).catch(function (err) {
-        // Transaction has been rolled back
-        return res.status(400).send("Fail to insert the new user\n" + stringify(err))
+    return sequelize.models.share_holder
+      // get the last inserted user
+      .findOne({
+        order: [['share_holder_id', 'DESC']],
+        attributes: ['share_holder_id']
+      }) 
+      // add the new user
+      .then(last_inserted_share_holder => {
+        // update db with new user
+        return sequelize
+          // exploit transaction - if error rollback
+          .transaction(function (t) {
+            return sequelize.models.share_holder
+              // create new user instance 
+              .create(withData(req.body, last_inserted_share_holder.share_holder_id + 1), {transaction: t});
+          })
+          .then(function (result) {
+            // transaction commit
+            next();
+          })
+          .catch(function (err) {
+            // transaction rollback
+            return res.status(400).send("Fail to insert the new user\n" + stringify(err))
+        });
       });
-    });
-  };
+    };
  };
 
+/**
+ * Update current user session - add its email address in the user object
+ * @returns 200 OK - successfully updated the user session
+ */
 let addUserMailToCookie = () => {
   return (req, res) => {
     const { email } = req.body;
+    
     // add user info to the session 
     req.session.user = {}
     req.session.user.email = email;
 
-    return res.status(200).send("Updated user session!\n" + stringify(req.session) + "\nEmail: " + req.session.user.email);
+    return res
+      .status(200)
+      .send(`Updated user session!\nYour current email: ${req.session.user.email}`);
   }
 }
-register.post("/", validateSchema("new-user"), checkEmailPasswordMatches(), checkEmailAvailable(), registerNewUser(), addUserMailToCookie());
+
+/**
+ * registration end point
+ */
+register.post("/" 
+  , validateSchema("new-user")
+  , checkEmailPasswordMatches()
+  , checkEmailAvailable()
+  , registerNewUser()
+  , addUserMailToCookie());
 
 module.exports = register;

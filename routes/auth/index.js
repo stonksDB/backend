@@ -2,6 +2,7 @@ const routes = require('express').Router();
 
 const register = require('./register')
 const login = require('./login')
+const logout = require('./logout')
 
 /**
  * This comment aims to clarify how the session based authentication and authorization is used for this two access points.
@@ -16,5 +17,6 @@ const login = require('./login')
 
 routes.use('/register', register)
 routes.use('/login', login)
+routes.use('/logout', logout)
 
 module.exports = routes;
