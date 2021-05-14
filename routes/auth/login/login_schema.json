@@ -1,0 +1,34 @@
+{
+  "title": "User Login",
+  "description": "A user logging in the application",
+  "type": "object",
+  "definitions": {
+      "non-empty-string": {
+          "type": "string",
+          "minLength": 1
+      },
+      "email-string": {
+          "type": "string",
+          "pattern": "^\\S+@\\S+\\.\\S+$",
+          "minLength": 6,
+          "maxLength": 254
+      },
+      "password-string": {
+          "type": "string",
+          "minLength": 12,
+          "maxLength": 255
+      }
+  },
+  "properties": {
+    "email": {
+      "description": "Email of the user",
+       "$ref": "#/definitions/email-string"
+    },
+    "password": {
+      "description": "Password of the user",
+  "$ref": "#/definitions/password-string"
+    }
+  },
+  "additionalProperties": false,
+  "required": ["email", "password"]
+}

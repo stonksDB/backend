@@ -1,4 +1,4 @@
-const auth = require('express').Router();
+const register = require('express').Router();
 // parse cookies - personalize response
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
@@ -7,7 +7,7 @@ const crypto = require('crypto');
 // body validation - json schema validation
 const Ajv = require('ajv')
 const ajv = new Ajv({removeAdditional:'all' })
-const registrationSchema = require('./json_schema.json');
+const registrationSchema = require('./registration_schema.json');
 const { doesNotMatch } = require('assert');
 ajv.addSchema(registrationSchema, 'new-user')
 // db interaction 
@@ -16,6 +16,15 @@ const sequelize = require('../../../sequelize');
 const { Op, json } = require('sequelize');
 const { stringify } = require('querystring');
 
+/**
+ * Checks if user already logged -> req.session.email != null or undefined
+ */
+register.use(function(req, res, next) {
+  const { email } = req.body;
+  if(req.session.user)
+    return res.status(400).send(`Log out before to register a new account. \nYour current email is ${email}`);
+  next();
+});
 
 /**
  * Validates incoming request bodies against the given schema,
@@ -70,7 +79,7 @@ let withEmail = (key) => {
     const { email } = req.body;
     return sequelize.models.share_holder.findOne(withEmail(email)).then(result => {
       if(result)
-        res.status(400).send(`Email ${email} is already in use`);
+        return res.status(400).send(`Email ${email} is already in use`);
       next();
       }
     )};
@@ -116,7 +125,7 @@ let withEmail = (key) => {
  * @returns {Object} response
  */
  let registerNewUser = () => {
-  return (req, res) => {
+  return (req, res, next) => {
     return sequelize.models.share_holder.findOne({
       order: [['share_holder_id', 'DESC']],
       attributes: ['share_holder_id']
@@ -126,7 +135,8 @@ let withEmail = (key) => {
         return sequelize.models.share_holder.create(withData(req.body, last_inserted_share_holder.share_holder_id + 1), {transaction: t})
       }).then(function (result) {
         // Transaction has been committed
-        return res.status(200).send("Successfully added new user\n" + stringify(result));
+        //return res.status(200).send("Successfully added new user\n" + stringify(result));
+        next();
       }).catch(function (err) {
         // Transaction has been rolled back
         return res.status(400).send("Fail to insert the new user\n" + stringify(err))
@@ -135,6 +145,16 @@ let withEmail = (key) => {
   };
  };
 
-auth.post("/", validateSchema("new-user"), checkEmailPasswordMatches(), checkEmailAvailable(), registerNewUser());
+let addUserMailToCookie = () => {
+  return (req, res) => {
+    const { email } = req.body;
+    // add user info to the session 
+    req.session.user = {}
+    req.session.user.email = email;
 
-module.exports = auth;
+    return res.status(200).send("Updated user session!\n" + stringify(req.session) + "\nEmail: " + req.session.user.email);
+  }
+}
+register.post("/", validateSchema("new-user"), checkEmailPasswordMatches(), checkEmailAvailable(), registerNewUser(), addUserMailToCookie());
+
+module.exports = register;
