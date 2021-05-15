@@ -2,73 +2,53 @@ const news = require('express').Router();
 const { models } = require('../../sequelize');
 const { Op } = require('sequelize');
 
-news.get("/:news_id", getNewsByid);
-news.get("/", getAllNews);
+const axios = require('axios')
 
-async function getNewsByid(req, res) {
+news.get("/:ticker", getNewsByTicker);
 
-    const news_id = req.params.news_id;
+async function getNewsByTicker(req, res) {
 
-    try {
+    const ticker = req.params.ticker;
 
-        const news = await models.news.findOne({ where: { news_id: news_id } });
-
-        if (news === null) {
-            res.status(404).json("Not found")
-        } else {
-            res.status(200).json(news);
+    var options = {
+        method: 'GET',
+        url: 'https://apidojo-yahoo-finance-v1.p.rapidapi.com/news/list',
+        params: {category: ticker, region: 'IT', start_uuid:'d'},
+        headers: {
+          'x-rapidapi-key': 'Dzzd2zsPGXmshEw7W0fIiNYZklJZp1ebqsmjsnrFbX2oNhRmND',
+          'x-rapidapi-host': 'apidojo-yahoo-finance-v1.p.rapidapi.com'
         }
+      };
 
-    } catch (error) {
-        console.log("there was an error", error)
-    }
+    axios.request(options).then(function (response) {
 
-};
+        let results = []
 
-async function getAllNews(req, res) {
+        for (var i = 0; i < 5; i++){
 
-    const offset = req.query.offset ?? 0
-    const limit = req.query.limit ?? 5
-    const key = req.query.key ?? ""
-
-    const withParameters = buildQueryAllByTimestamp(offset, limit, key);
-
-    try {
-
-        const { count, rows } = await models.news.findAndCountAll(withParameters);
-
-        const result = {
-            data: {
-                news: rows
-            },
-            pageable: {
-                total: count,
-                offset: limit
+            const element = {
+                "uuid": response.data.items.result[i].uuid,
+                "title": response.data.items.result[i].title,
+                "summary": response.data.items.result[i].summary,
+                "author": response.data.items.result[i].title,
+                "img": response.data.items.result[i].main_image.resolutions[0] ?? "",
+                "publicshed_at": response.data.items.result[i].published_at,
             }
+
+            results.push(element)
         }
 
-        res.status(200).json(result);
-    } catch (error) {
-        console.log("there was an error", error)
-    }
+        res.send(results)
+
+    }).catch(function (error) {
+        console.error(error);
+    });
+
+    //ERRORS
+    // server does not respond
+    // no data found
+    // other
 
 };
-
-function buildQueryAllByTimestamp(offset, limit, key) {
-
-    const query = {
-        order: [['publish_date', 'ASC']],
-        where: {
-            [Op.and]: [
-                { title: { [Op.substring]: key } }
-            ]
-        },
-        attributes: ['news_id', 'publish_date', 'title', 'author', 'link'],
-        offset: offset,
-        limit: limit
-    }
-
-    return query;
-}
 
 module.exports = news;
