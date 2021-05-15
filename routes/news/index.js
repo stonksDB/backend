@@ -11,32 +11,30 @@ async function getNewsByTicker(req, res) {
     const ticker = req.params.ticker;
 
     var options = {
-        method: 'GET',
-        url: 'https://apidojo-yahoo-finance-v1.p.rapidapi.com/news/list',
-        params: {category: ticker, region: 'IT', start_uuid:'d'},
+        method: 'POST',
+        url: 'https://apidojo-yahoo-finance-v1.p.rapidapi.com/news/v2/list',
+        params: {s:ticker, region: 'IT', snippetCount: '5'},
         headers: {
+          'content-type': 'text/plain',
           'x-rapidapi-key': 'Dzzd2zsPGXmshEw7W0fIiNYZklJZp1ebqsmjsnrFbX2oNhRmND',
           'x-rapidapi-host': 'apidojo-yahoo-finance-v1.p.rapidapi.com'
-        }
+        },
       };
 
     axios.request(options).then(function (response) {
 
         let results = []
 
-        for (var i = 0; i < 5; i++){
-
-            const element = {
-                "uuid": response.data.items.result[i].uuid,
-                "title": response.data.items.result[i].title,
-                "summary": response.data.items.result[i].summary,
-                "author": response.data.items.result[i].title,
-                "img": response.data.items.result[i].main_image.resolutions[0] ?? "",
-                "publicshed_at": response.data.items.result[i].published_at,
+        response.data.data.main.stream.forEach(element => {
+            const smallElem = {
+                "uuid": element.id,
+                "title": element.content.title,
+                "img": element.content.thumbnail.resolutions[0] ?? "",
+                "published_at": element.content.pubDate,
             }
 
-            results.push(element)
-        }
+            results.push(smallElem)
+        });
 
         res.send(results)
 
