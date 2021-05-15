@@ -87,7 +87,7 @@ let validateUserCredentials = () => {
  * Add the user 
  * @returns 200 - session associate to the user has been updated
  */
-let addUserMailToCookie = () => {
+let regenerateCookie = () => {
     return (req, res) => {
       const { email } = req.body;
       // add user info to the session 
@@ -98,9 +98,26 @@ let addUserMailToCookie = () => {
     }
   }
 
+
 /**
  * login end point - invoked only if the user not already logged in
  */
-login.get("/", validateSchema('loggin-user'), validateUserCredentials(), addUserMailToCookie());
+login.get("/", validateSchema('loggin-user'), validateUserCredentials(), regenerateCookie());
+
+/**
+ * additional method... regenerate id to increase security, load prev data from noSql permanent storage to provide better user personalization
+ */
+login.get('/regenerate', (req, res) => {
+  const user_data = req.session.user; 
+  return req.session.regenerate(err => {
+      req.session.user = {}
+      req.session.user = user_data;
+      const sess = stringify(req.session);
+      const sess_id = stringify(req.session.id);
+      const sess_cookie = stringify(req.session.cookie);
+      const output = `req.session: ${sess}\n\nreq.session.id: ${sess_id}\n\nreq.session.cookie: ${sess_cookie}`;
+      return res.status(200).send(`Current session info: ${output}`);
+  })
+})
 
 module.exports = login;

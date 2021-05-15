@@ -7,7 +7,7 @@ const app = express();
 const redis = require('redis');
 let RedisStore = require('connect-redis')(session);
 let redisClient = redis.createClient();
-let sessionStore = new RedisStore({ client: redisClient, ttl: 86400 });
+let sessionStore = new RedisStore({ client: redisClient, ttl: 86400 }); // ttl - expires after 24h of inutilization
 
 // middleware: for every request attaches data from redis - access through req.session
 routes.use(session({
