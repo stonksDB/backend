@@ -1,7 +1,5 @@
 const login = require('express').Router();
 
-const register = require('express').Router();
-
 // hash password - increase system security
 const crypto = require('crypto');
 // body validation - json schema validation
@@ -17,7 +15,7 @@ const { stringify } = require('querystring');
 /**
  * Checks if user already logged -> req.session.email != null or undefined
  */
-register.use(function(req, res, next) {
+login.use(function(req, res, next) {
   const { email } = req.body;
   if(req.session.user)
     return res.status(400).send(`You are already logged!. \nYour current email is ${email}`);
@@ -98,16 +96,10 @@ let regenerateCookie = () => {
     }
   }
 
-
-/**
- * login end point - invoked only if the user not already logged in
- */
-login.get("/", validateSchema('loggin-user'), validateUserCredentials(), regenerateCookie());
-
 /**
  * additional method... regenerate id to increase security, load prev data from noSql permanent storage to provide better user personalization
  */
-login.get('/regenerate', (req, res) => {
+ login.get('/regenerate', (req, res) => {
   const user_data = req.session.user; 
   return req.session.regenerate(err => {
       req.session.user = {}
@@ -119,5 +111,12 @@ login.get('/regenerate', (req, res) => {
       return res.status(200).send(`Current session info: ${output}`);
   })
 })
+
+
+/**
+ * login end point - invoked only if the user not already logged in
+ */
+login.get("/", validateSchema('loggin-user'), validateUserCredentials(), regenerateCookie());
+
 
 module.exports = login;
