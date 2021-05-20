@@ -1,17 +1,12 @@
 const register = require('express').Router();
 
-// password hashing
-const crypto = require('crypto');
+const validateSchema = require('../../../validation') // schema validation
 
-// body validation - json schema validation
-const Ajv = require('ajv')
-const ajv = new Ajv({removeAdditional:'all' })
-const registrationSchema = require('./registration_schema.json');
-ajv.addSchema(registrationSchema, 'new-user')
+const sequelize = require('../../../sequelize'); // db interaction 
 
-// db interaction
-const sequelize = require('../../../sequelize');
-const { stringify } = require('querystring');
+// utility functions
+const { hash} = require('../auth_util'); 
+const { next_id_available, checkEmailPasswordMatches, checkEmailAvailable } = require('./registration_util')
 
 // dictionary - contains the list of valid sector names and their correspondent id
 const convertion_table = {
@@ -41,78 +36,6 @@ register.use(function(req, res, next) {
     return res.status(400).send(`Log out before to register a new account. \nYour current email is ${email}`);
   next();
 });
-
-/**
- * Validates incoming request bodies against the given schema,
- * providing an error response when validation fails
- * @param  {String} schemaName - name of the schema to validate
- * @return {Object} response
- */
- let validateSchema = (schemaName) => {
-  return (req, res, next) => {
-    let valid = ajv.validate(schemaName, req.body)
-    if (!valid) {
-      return res.status(400).send(ajv.errors);
-    }
-    next()
-  }
-}
-
-/**
- * Checks if the email and the password matches with their confirmation values
- * @returns {Object} response
- */
-let checkEmailPasswordMatches = () => {
-  return (req, res, next) => {
-    const { email, confirmationEmail, password, confirmationPassword } = req.body;
-    let matches = (email === confirmationEmail) & (password === confirmationPassword);
-    if(!matches) {
-      return res.status(400).send("Either email or password doesn't matches");
-    }
-  next()
-  }
-}
-
-/**
- * Returns the query object for email retrieval
- * @param {String} key 
- * @returns {Object} - query object
- */
-let withEmail = (key) => {
-  return {
-    where: {
-        email: key
-    }
-  }
-}
-
-/**
- * Checks if the is already an account associated with the email address
- * @returns {Object} response
- */
- let checkEmailAvailable = () => {
-  return (req, res, next) => {
-    const { email } = req.body;
-    return sequelize.models.share_holder
-      .findOne(withEmail(email))
-      .then(result => {
-        if(result)
-          return res.status(400).send(`Email ${email} is already in use`);
-        next();
-        }
-      )};
-  };
-
-/**
- * Returns the hash value of the input password
- * @param {String} password - password to be hashed
- * @returns {String} hash value
- */
-
- const getHashedPassword = (password) => {
-  const sha256 = crypto.createHash('sha256');
-  return sha256.update(password).digest('base64');
-}
 
 /**
  * Returns the array of Follow instances to be inserted
@@ -150,7 +73,7 @@ let follow_tuples_array = (body, share_holder_id) => {
  */
  let share_holder_data = (body, nextIndex) => {
    const { firstName, lastName, dob, country, email, password } = body;
-   const hashedPassword = getHashedPassword(password)
+   const hashedPassword = hash(password)
    
    const dict = {
     share_holder_id: nextIndex,
@@ -166,57 +89,7 @@ let follow_tuples_array = (body, share_holder_id) => {
   return dict;
 }
 
-/**
- * Retrieves the last inserted user's id and increments it. Returns 0 if no user currently registered
- * @returns {Integer} next share_holder_id available
- */
-async function next_id_available() {
-  const last_user = await sequelize.models.share_holder.findOne(
-    {
-    order: [['share_holder_id', 'DESC']],
-    attributes: ['share_holder_id']
-    }
-  );
-   
-  if(last_user)
-    return last_user.share_holder_id + 1;
-  else 
-    return 0;
-}
 
-/**
- * Save into database the new user data
- * @param {String} body 
- * @returns 
- */
-async function insertUserData(body) {
-  try {
-
-    return await sequelize.transaction(async (t) => {
-
-      const next_share_holder_id = await next_id_available();
-
-      const insert_user_data = await sequelize.models.share_holder.create(
-        share_holder_data(body, next_share_holder_id),
-        {transaction: t}
-      );
-      
-      const follow_data = follow_tuples_array(body,next_share_holder_id)
-
-      const insert_followed_sectors = await sequelize.models.follow.bulkCreate(
-        follow_data,
-        {transaction: t}
-      );
-
-      return {
-        ...insert_user_data,
-        insert_followed_sectors
-      };
-    });
-  } catch (error) {
-    // error occurred - transaction already rolled back
-  }
-} 
 
 /**
  * Add new user 
@@ -224,13 +97,30 @@ async function insertUserData(body) {
  */
  let registerNewUser = () => {
   return (req, res, next) =>  {
+    try {
+      sequelize.transaction(async (t) => {
 
-    const function_exec = insertUserData(req.body);
-    console.log('return from function exec' + stringify(function_exec))
-    next()
+        const next_share_holder_id = await next_id_available();
+
+        await sequelize.models.share_holder.create(
+          share_holder_data(req.body, next_share_holder_id),
+          {transaction: t}
+        );
+        
+        const follow_data = follow_tuples_array(req.body,next_share_holder_id)
+
+        await sequelize.models.follow.bulkCreate(
+          follow_data,
+          {transaction: t}
+        );
+      })
+      next();
+    }
+    catch {
+      res.status(500).send('Error on database update!')
+    }
   }
 }
- 
 
 /**
  * Update current user session - add its email address in the user object
@@ -254,7 +144,7 @@ let addUserMailToCookie = () => {
  * registration end point
  */
 register.post("/" 
-  , validateSchema("new-user")
+  , validateSchema("registration-user")
   , checkEmailPasswordMatches()
   , checkEmailAvailable()
   , registerNewUser()

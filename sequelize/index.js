@@ -8,7 +8,8 @@ const modelDefiners = [
 	require('./models/stock.model'),
 	require('./models/history.model'),
 	require('./models/news.model'),
-	require('./models/share_holder.model')
+	require('./models/share_holder.model'),
+	require('./models/follow.model')
 	//require('./models/company.model')
 ];
 

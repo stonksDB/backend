@@ -1,16 +1,12 @@
 const login = require('express').Router();
 
-// hash password - increase system security
-const crypto = require('crypto');
-// body validation - json schema validation
-const Ajv = require('ajv')
-const ajv = new Ajv({removeAdditional:'all' })
-const loginSchema = require('./login_schema.json');
-ajv.addSchema(loginSchema, 'loggin-user')
-// db interaction 
-// const { models } = require('../../../sequelize');
-const sequelize = require('../../../sequelize');
-const { stringify } = require('querystring');
+const validateSchema = require('../../../validation') // schema validation
+
+const sequelize = require('../../../sequelize'); // db interaction 
+
+// utility functions
+const { hash } = require('../auth_util'); 
+const { withCredentials } = require('./login_util')
 
 /**
  * Checks if user already logged -> req.session.email != null or undefined
@@ -18,60 +14,18 @@ const { stringify } = require('querystring');
 login.use(function(req, res, next) {
   const { email } = req.body;
   if(req.session.user)
-    return res.status(400).send(`You are already logged!. \nYour current email is ${email}`);
+    return res.status(401).send(`You are already logged!. \nYour current email is ${email}`);
   next();
 });
 
 /**
- * Validates incoming request bodies against the given schema,
- * providing an error response when validation fails
- * @param  {String} schemaName - name of the schema to validate
- * @return {Object} response
- */
- let validateSchema = (schemaName) => {
-  return (req, res, next) => {
-    let valid = ajv.validate(schemaName, req.body)
-    if (!valid) {
-      return res.status(400).send(ajv.errors);
-    }
-    next()
-  }
-}
-
-
-/**
- * Builds the query for the email searching
- * @param {String} key 
- * @returns {Object} - query object
- */
-let withCredentials = (providedEmail, hashedPassword) => {
-  return {
-    where: {
-        email: providedEmail,
-        password: hashedPassword
-    }
-  }
-}
-
-/**
- * Returns the hash value of the input password
- * @param {String} password - password to be hashed
- * @returns {String} hash value
- */
-
- const getHashedPassword = (password) => {
-  const sha256 = crypto.createHash('sha256');
-  return sha256.update(password).digest('base64');
-}
-
-/**
  * Checks if there is already an account associated with the user email
- * @returns - error 401 if email already in use
+ * @returns - error 401 email or password wrong
  */
 let validateUserCredentials = () => {
     return(req, res, next) => {
         const { email, password } = req.body;
-        return sequelize.models.share_holder.findOne(withCredentials(email, getHashedPassword(password))).then(result => {
+        return sequelize.models.share_holder.findOne(withCredentials(email, hash(password))).then(result => {
             if(!result) 
                 return res.status(401).send(`Email or Password wrong!`);
             next();
@@ -84,37 +38,24 @@ let validateUserCredentials = () => {
  * @returns 200 - session associate to the user has been updated
  */
 let regenerateCookie = () => {
-    return (req, res) => {
-      const { email } = req.body;
-      // add user info to the session 
-      req.session.user = {}
-      req.session.user.email = email;
-  
-      return res.status(200).send("Updated user session!\n" + stringify(req.session) + "\nEmail: " + req.session.user.email);
-    }
-  }
+  return (req, res) => {
+    let user_data = {}
+    if(req.session.user_data !== undefined) // if already data in the prev. cookie, reassign them to new one
+      user_data = req.session.user_data;
 
-/**
- * additional method... regenerate id to increase security, load prev data from noSql permanent storage to provide better user personalization
- */
- login.get('/regenerate', (req, res) => {
-  const user_data = req.session.user; 
-  return req.session.regenerate(err => {
-      req.session.user = {}
+    const { email } = req.body;
+
+    return req.session.regenerate(err => {
       req.session.user = user_data;
-      const sess = stringify(req.session);
-      const sess_id = stringify(req.session.id);
-      const sess_cookie = stringify(req.session.cookie);
-      const output = `req.session: ${sess}\n\nreq.session.id: ${sess_id}\n\nreq.session.cookie: ${sess_cookie}`;
-      return res.status(200).send(`Current session info: ${output}`);
-  })
-})
-
+      req.session.user.email = email;
+      return res.status(200).send(`Successfully logged in! Your current email address: ${email}`);
+    })
+  }
+}
 
 /**
  * login end point - invoked only if the user not already logged in
  */
-login.get("/", validateSchema('loggin-user'), validateUserCredentials(), regenerateCookie());
-
+login.get("/", validateSchema('login-user'), validateUserCredentials(), regenerateCookie());
 
 module.exports = login;

@@ -30,6 +30,8 @@ const company = require('./company')
 const auth = require('./auth');
 const { stringify, str } = require('ajv');
 
+const sequelize = require('./../sequelize');
+
 routes.use('/stocks', stocks)
 routes.use('/history', history)
 routes.use('/news', news)
