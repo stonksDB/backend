@@ -61,8 +61,15 @@
     "confirmationPassword": {
       "description": "Confirmation password of the user",
        "$ref": "#/definitions/password-string"
+    },
+    "follows": {
+      "description": "List of sectors of interest for the user",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/name-string"
+      }
     }
   },
   "additionalProperties": false,
-  "required": ["firstName", "lastName", "dob", "country", "email", "confirmationEmail", "password", "confirmationPassword"]
+  "required": ["firstName", "lastName", "dob", "country", "email", "confirmationEmail", "password", "confirmationPassword", "follows"]
 }

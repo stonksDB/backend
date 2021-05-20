@@ -71,11 +71,9 @@ let withCredentials = (providedEmail, hashedPassword) => {
 let validateUserCredentials = () => {
     return(req, res, next) => {
         const { email, password } = req.body;
-        console.log("validating the credentials");
         return sequelize.models.share_holder.findOne(withCredentials(email, getHashedPassword(password))).then(result => {
-            console.log("parsing result");
             if(!result) 
-                return res.status(401).send(`Email: ${email}\nPassword: ${password}\nNo user matching`);
+                return res.status(401).send(`Email or Password wrong!`);
             next();
         });
     };

@@ -1,6 +1,6 @@
 const register = require('express').Router();
 
-// hash password - increase system security
+// password hashing
 const crypto = require('crypto');
 
 // body validation - json schema validation
@@ -74,7 +74,7 @@ let checkEmailPasswordMatches = () => {
 }
 
 /**
- * Builds the query for the email searching
+ * Returns the query object for email retrieval
  * @param {String} key 
  * @returns {Object} - query object
  */
@@ -114,20 +114,32 @@ let withEmail = (key) => {
   return sha256.update(password).digest('base64');
 }
 
-let followed_sectors_data = (body) => {
-  const { follows_arr } = body
+/**
+ * Returns the array of Follow instances to be inserted
+ * @param {String} body 
+ * @param {Integer} share_holder_id 
+ * @returns - array of Follow instances
+ */
+let follow_tuples_array = (body, share_holder_id) => {
+  const { follows } = body
 
-  // 1) filters out all not-valid sectors
-  // 2) valid sectors are stored in the toBeInserted array with their correspondent id
-  const toBeInserted = []
-  follows_arr.forEach(str => {
-    if(convertion_table[str] !== undefined) // valid sector
-      toBeInserted.push({
-        str: convertion_table[str]
-      }) 
+  const toBeInserted = {}
+  follows.forEach(str => {
+    if(convertion_table[str] !== undefined) { // insert only valid sector names
+      toBeInserted[str] = convertion_table[str];
+    } 
   })
-  console.log("output dictionary: " + stringify(toBeInserted));
-  return toBeInserted;
+  
+  const follow_tuples = []
+  // create list of follow instances
+  Object.keys(toBeInserted).forEach((sector_entry)=> follow_tuples.push(
+    {
+      share_holder_id: share_holder_id,
+      sector_id: toBeInserted[sector_entry]
+    }
+  ));
+
+  return follow_tuples;
 }
 
 /**
@@ -150,80 +162,75 @@ let followed_sectors_data = (body) => {
     password: hashedPassword
   };
   
-  
   dict.additionalField = 0;
   return dict;
- }
+}
 
+/**
+ * Retrieves the last inserted user's id and increments it. Returns 0 if no user currently registered
+ * @returns {Integer} next share_holder_id available
+ */
+async function next_id_available() {
+  const last_user = await sequelize.models.share_holder.findOne(
+    {
+    order: [['share_holder_id', 'DESC']],
+    attributes: ['share_holder_id']
+    }
+  );
+   
+  if(last_user)
+    return last_user.share_holder_id + 1;
+  else 
+    return 0;
+}
 
+/**
+ * Save into database the new user data
+ * @param {String} body 
+ * @returns 
+ */
+async function insertUserData(body) {
+  try {
+
+    return await sequelize.transaction(async (t) => {
+
+      const next_share_holder_id = await next_id_available();
+
+      const insert_user_data = await sequelize.models.share_holder.create(
+        share_holder_data(body, next_share_holder_id),
+        {transaction: t}
+      );
+      
+      const follow_data = follow_tuples_array(body,next_share_holder_id)
+
+      const insert_followed_sectors = await sequelize.models.follow.bulkCreate(
+        follow_data,
+        {transaction: t}
+      );
+
+      return {
+        ...insert_user_data,
+        insert_followed_sectors
+      };
+    });
+  } catch (error) {
+    // error occurred - transaction already rolled back
+  }
+} 
 
 /**
  * Add new user 
  * @returns 400 - Internal Server Error during the db update
  */
  let registerNewUser = () => {
-  return (req, res, next) => {
-    return sequelize.models.share_holder
-      // get the last inserted user
-      .findOne({
-        order: [['share_holder_id', 'DESC']],
-        attributes: ['share_holder_id']
-      }) 
-      // add the new user
-      .then(last_inserted_share_holder => {
-        // update db with new user
-        return sequelize.transaction(function (t) {
-            const insert_user_data = sequelize.models.share_holder
-              .create(share_holder_data(req.body, last_inserted_share_holder.share_holder_id + 1), {transaction: t});
-            
-            const insert_followed_sectors = followed_sectors_data(req.body).forEach(sector => {
-              sequelize.models.sector
-              .create(sector, {transaction: t});
-            })
-            
-            return {
-              ...insert_user_data,
-              insert_followed_sectors
-            }
-          })
-          .then(function (result) {
-            // transaction commit
-            next();
-          })
-          .catch(function (err) {
-            // transaction rollback
-            return res.status(400).send("Fail to insert the new user\n" + stringify(err))
-        });
-      });
-    };
- };
+  return (req, res, next) =>  {
 
- try {
-
-  const result = await sequelize.transaction(async (t) => {
-
-    const insert_user_data = await sequelize.models.share_holder.create(
-      share_holder_data(req.body, last_inserted_share_holder.share_holder_id + 1),
-      {transaction: t}
-    );
-
-    const insert_followed_sectors = await sequelize.models.sector.bulkCreate(
-      followed_sectors_data,
-      {transaction: t}
-    );
-
-    return {
-      ...insert_user_data,
-      insert_followed_sectors
-    };
-  });
-
-} catch (error) {
-
-  // If the execution reaches this line, an error occurred.
-  // The transaction has already been rolled back automatically by Sequelize
-  console.log("\n\nSomething went wrong ")
+    const function_exec = insertUserData(req.body);
+    console.log('return from function exec' + stringify(function_exec))
+    next()
+  }
 }
+ 
 
 /**
  * Update current user session - add its email address in the user object
