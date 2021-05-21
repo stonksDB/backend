@@ -5,7 +5,7 @@ const validateSchema = require('../../../validation') // schema validation
 const sequelize = require('../../../sequelize'); // db interaction 
 
 // utility functions
-const { hash} = require('../auth_util'); 
+const { hash } = require('../auth_util'); 
 const { next_id_available, checkEmailPasswordMatches, checkEmailAvailable } = require('./registration_util')
 
 // dictionary - contains the list of valid sector names and their correspondent id
@@ -33,7 +33,7 @@ const convertion_table = {
 register.use(function(req, res, next) {
   const { email } = req.body;
   if(req.session.user)
-    return res.status(400).send(`Log out before to register a new account. \nYour current email is ${email}`);
+    return res.status(401).send(`Log out before to register a new account. \nYour current email is ${email}`);
   next();
 });
 

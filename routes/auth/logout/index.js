@@ -5,7 +5,7 @@ const logout = require('express').Router();
  */
  logout.use(function(req, res, next) {
     if(!req.session.user)
-      return res.status(401).send(`You must login before to  logout!`);
+      return res.status(401).send(`You must login before to logout!`);
     next();
   });
 
@@ -13,7 +13,8 @@ const logout = require('express').Router();
  * logout end point - invoked only if the user is logged in
  */
 logout.get("/", (req, res) => {
-    req.session.destroy();
+    // regenerate the session without user information attached
+    req.session.regenerate();
     return res.status(200).send(`Successfully logged out!`);
   });
 
