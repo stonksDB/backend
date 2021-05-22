@@ -2,27 +2,14 @@ const news = require('express').Router();
 const { models } = require('../../sequelize');
 const { Op } = require('sequelize');
 
-/**
- * @swagger
- * /search:
- *   get:
- *     description: Search for any keyword
- *     parameters:
- *       - in: query
- *         name: key          
- *         
- *     responses:
- *       200:
- *         description: Returns a ticker, or a company that has the key value in the name
- */
 news.get("/", getSearchSuggestions);
 
 async function getSearchSuggestions(req, res) {
 
-    const key = req.query.key ?? "";    
+    const key = req.query.key ?? "";
 
-    const withParametersTicker = buildQueryTicker(3, key);
-    const withParametersName = buildQueryName(3, key);
+    const withParametersTicker = buildQueryTicker(3, key.toUpperCase());
+    const withParametersName = buildQueryName(3, key.toUpperCase());
 
     try {
 
@@ -49,7 +36,7 @@ function buildQueryTicker(limit, key) {
                 { ticker: { [Op.substring]: key } }
             ]
         },
-        attributes: { include: ["name", "ticker"] },
+        attributes: ["name", "ticker"],
         limit: limit
     }
 
@@ -64,7 +51,7 @@ function buildQueryName(limit, key) {
                 { name: { [Op.substring]: key } }
             ]
         },
-        attributes: { include: ["name", "ticker"] },
+        attributes: ["name", "ticker"],
         limit: limit
     }
 
