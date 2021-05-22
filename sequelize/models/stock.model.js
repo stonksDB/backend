@@ -39,6 +39,6 @@ module.exports = (sequelize) => {
             type: DataTypes.STRING(25)
         }        
     }, {
-        tableName:"past_values"
+        tableName:"stocks"
     })
 }
