@@ -6,7 +6,7 @@ const sequelize = require('../../../sequelize'); // db interaction
 
 // utility functions
 const { hash } = require('../auth_util'); 
-const { withCredentials } = require('./login_util')
+const { withCredentials, withShareHolderId, getListOfSectors, getListOfTickers } = require('./login_util')
 
 /**
  * Checks if user already logged -> req.session.email != null or undefined
@@ -25,13 +25,46 @@ login.use(function(req, res, next) {
 let validateUserCredentials = () => {
     return(req, res, next) => {
         const { email, password } = req.body;
-        return sequelize.models.share_holder.findOne(withCredentials(email, hash(password))).then(result => {
-            if(!result) 
+        return sequelize.models.share_holder.findOne(withCredentials(email, hash(password))).then(share_holder => {
+            if(!share_holder) 
                 return res.status(401).send(`Email or Password wrong!`);
+            // attach share_holder returned to req object!
+            req.share_holder = share_holder;
             next();
         });
     };
 };
+
+let loadAdditionalUserInfo = () => {
+  return async (req, res, next) => {
+    const empty_json_object = JSON.parse("{}")
+    const follow_tuples = await sequelize.models.follow.findAll(withShareHolderId(req.share_holder.share_holder_id))
+      .then(result => {
+        if(!result)
+          return empty_json_object; // empty Json Object
+        return result;
+      });
+
+    const like_tuples = await sequelize.models.like.findAll(withShareHolderId(req.share_holder.share_holder_id))
+      .then(result => {
+        if(!result)
+          return empty_json_object;
+        return result;
+      })
+
+    const liked_tickers = getListOfTickers(like_tuples);
+    const followed_sectors = getListOfSectors(follow_tuples);
+
+    const merged_info = {}
+    merged_info.share_holder_info = req.share_holder;
+    merged_info.follows = followed_sectors;
+    merged_info.likes = liked_tickers;
+
+    res.status(200).send(JSON.stringify(merged_info));
+  
+    next(); // update cookie info
+  }
+}
 
 /**
  * Add the user 
@@ -48,7 +81,6 @@ let regenerateCookie = () => {
     return req.session.regenerate(err => {
       req.session.user = user_data;
       req.session.user.email = email;
-      return res.status(200).send(`Successfully logged in! Your current email address: ${email}`);
     })
   }
 }
@@ -56,6 +88,6 @@ let regenerateCookie = () => {
 /**
  * login end point - invoked only if the user not already logged in
  */
-login.get("/", validateSchema('login-user'), validateUserCredentials(), regenerateCookie());
+login.get("/", validateSchema('login-user'), validateUserCredentials(), loadAdditionalUserInfo(), regenerateCookie());
 
 module.exports = login;

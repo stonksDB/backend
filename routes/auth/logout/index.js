@@ -14,8 +14,9 @@ const logout = require('express').Router();
  */
 logout.get("/", (req, res) => {
     // regenerate the session without user information attached
-    req.session.regenerate();
-    return res.status(200).send(`Successfully logged out!`);
+    return req.session.regenerate(err => {
+      return res.status(200).send(`Successfully logged out!`);
+    });
   });
 
 module.exports = logout;

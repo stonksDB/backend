@@ -46,22 +46,20 @@ register.use(function(req, res, next) {
 let follow_tuples_array = (body, share_holder_id) => {
   const { follows } = body
 
-  const toBeInserted = {}
-  follows.forEach(str => {
-    if(convertion_table[str] !== undefined) { // insert only valid sector names
-      toBeInserted[str] = convertion_table[str];
-    } 
-  })
+  const filtered = follows.filter((val) => val >= 0 & val<= 14)
+  console.log(`Filtered ids: ${JSON.stringify(filtered)}`)
+
+  let id_set = new Set(filtered); // remove duplicates
   
-  const follow_tuples = []
   // create list of follow instances
-  Object.keys(toBeInserted).forEach((sector_entry)=> follow_tuples.push(
+  const follow_tuples = []
+  id_set.forEach((sector_id)=> follow_tuples.push(
     {
       share_holder_id: share_holder_id,
-      sector_id: toBeInserted[sector_entry]
+      sector_id: sector_id
     }
   ));
-
+  
   return follow_tuples;
 }
 
