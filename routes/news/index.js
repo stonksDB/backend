@@ -9,11 +9,14 @@ news.get("/:ticker", getNewsByTicker);
 async function getNewsByTicker(req, res) {
 
     const ticker = req.params.ticker;
+    const number = req.query.number ?? 5;
+
+    console.log(number)
 
     var options = {
         method: 'POST',
         url: 'https://apidojo-yahoo-finance-v1.p.rapidapi.com/news/v2/list',
-        params: {s:ticker, region: 'IT', snippetCount: '5'},
+        params: {s:ticker, region: 'IT', snippetCount: number},
         headers: {
           'content-type': 'text/plain',
           'x-rapidapi-key': 'Dzzd2zsPGXmshEw7W0fIiNYZklJZp1ebqsmjsnrFbX2oNhRmND',
