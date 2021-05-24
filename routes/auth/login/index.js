@@ -9,12 +9,12 @@ const { hash } = require('../auth_util');
 const { withCredentials, withShareHolderId, getListOfSectors, getListOfTickers } = require('./login_util')
 
 /**
- * Checks if user already logged -> req.session.email != null or undefined
+ * Checks if user already logged -> req.session.user != null or undefined
  */
-login.use(function(req, res, next) {
-  const { email } = req.body;
-  if(req.session.user)
-    return res.status(401).send(`You are already logged!. \nYour current email is ${email}`);
+login.use((req, res, next) => {
+  if(req.session.user) {
+    return res.status(401).send(`You are already logged!.`);
+  }
   next();
 });
 
@@ -35,9 +35,30 @@ let validateUserCredentials = () => {
     };
 };
 
-let loadAdditionalUserInfo = () => {
-  return async (req, res, next) => {
+/**
+ * Renegerate session id and cookie associated; add to the session the user info
+ * @returns 200 - session associate to the user has been updated
+ */
+let regenerateCookie = () => {
+
+  return (req, _, next) => {
+    const { email } = req.body;
+    req.session.regenerate((err) => {
+      req.session.user = {};
+      req.session.user.email = email;
+    });
+    next();
+  }
+}
+
+/**
+ * 
+ * @returns 200 - returned as Json user related information: liked tickers, followed sectors and general data
+ */
+ let returnAdditionalUserInfo = () => {
+  return async (req, res) => {
     const empty_json_object = JSON.parse("{}")
+
     const follow_tuples = await sequelize.models.follow.findAll(withShareHolderId(req.share_holder.share_holder_id))
       .then(result => {
         if(!result)
@@ -48,7 +69,7 @@ let loadAdditionalUserInfo = () => {
     const like_tuples = await sequelize.models.like.findAll(withShareHolderId(req.share_holder.share_holder_id))
       .then(result => {
         if(!result)
-          return empty_json_object;
+          return empty_json_object; // empty Json Object
         return result;
       })
 
@@ -60,34 +81,13 @@ let loadAdditionalUserInfo = () => {
     merged_info.follows = followed_sectors;
     merged_info.likes = liked_tickers;
 
-    res.status(200).send(JSON.stringify(merged_info));
-  
-    next(); // update cookie info
+    return res.status(200).send(JSON.stringify(merged_info));
   }
 }
 
 /**
- * Add the user 
- * @returns 200 - session associate to the user has been updated
+ * login end point
  */
-let regenerateCookie = () => {
-  return (req, res) => {
-    let user_data = {}
-    if(req.session.user_data !== undefined) // if already data in the prev. cookie, reassign them to new one
-      user_data = req.session.user_data;
-
-    const { email } = req.body;
-
-    return req.session.regenerate(err => {
-      req.session.user = user_data;
-      req.session.user.email = email;
-    })
-  }
-}
-
-/**
- * login end point - invoked only if the user not already logged in
- */
-login.get("/", validateSchema('login-user'), validateUserCredentials(), loadAdditionalUserInfo(), regenerateCookie());
+login.get("/", validateSchema('login-user'), validateUserCredentials(), regenerateCookie(), returnAdditionalUserInfo());
 
 module.exports = login;

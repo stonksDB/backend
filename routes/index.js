@@ -18,7 +18,7 @@ routes.use(session({
         sameSite: true,
     },
     store: sessionStore,
-    resave: false
+    resave: true
 }))
 
 const stocks = require('./stocks')
