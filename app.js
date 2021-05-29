@@ -1,8 +1,11 @@
 const config = require('./config/config.json')
 const express = require('express')
+const cors = require('cors')
 const app = express()
 const routes = require('./routes')
 const bodyParser = require("body-parser")
+
+
 
 // swagger
 /*
@@ -12,6 +15,7 @@ var swaggerJSDoc = require('swagger-jsdoc')
 const specs = swaggerJSDoc(swaggerDocument)
 */
 
+app.use(cors())
 
 // To support URL-encoded bodies
 app.use(bodyParser.urlencoded({ extended: true }));
