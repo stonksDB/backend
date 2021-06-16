@@ -18,7 +18,7 @@ async function getStocksByMic(req, res) {
 
         const result = {
             data: {
-                stocks: stocks
+                stocks: rows
             },
             pageable: {
                 offset: offset,
