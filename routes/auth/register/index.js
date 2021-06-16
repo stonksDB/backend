@@ -8,25 +8,6 @@ const sequelize = require('../../../sequelize'); // db interaction
 const { hash } = require('../auth_util'); 
 const { next_id_available, checkEmailPasswordMatches, checkEmailAvailable } = require('./registration_util')
 
-// dictionary - contains the list of valid sector names and their correspondent id
-const convertion_table = {
-  "Healthcare": 0,
-  "Industrials": 1,
-  "Consumer Cyclical": 2,
-  "Financial Services": 3,
-  "Technology": 4,
-  "Energy": 5,
-  "Real Estate": 6,
-  "Basic Materials": 7,
-  "Communication Services": 8,
-  "Consumer Defensive": 9,
-  "Utilities": 10,
-  "Industrial Goods": 11,
-  "Services": 12,
-  "Financial": 13, 
-  "Consumer Goods":14
-}
-
 /**
  * Checks if user already logged -> req.session.email != null or undefined
  */
