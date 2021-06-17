@@ -31,7 +31,7 @@ async function getNewsPersonalized(req, res) {
         //2) search for redis
 
         let array_from_redis = await getMostSearchedTickerRedis();
-        array_from_redis.reduce((s, e) => s.add(e), ticker_set);        
+        array_from_redis.reduce((s, e) => s.add(e), ticker_set);
 
     }
 
