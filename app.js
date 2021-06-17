@@ -5,8 +5,6 @@ const app = express()
 const routes = require('./routes')
 const bodyParser = require("body-parser")
 
-
-
 // swagger
 /*
 const swaggerUi = require('swagger-ui-express')
@@ -19,7 +17,18 @@ app.use(cors())
 
 // To support URL-encoded bodies
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json())
+
+/**
+ * safe implementation of bodyParser.josn()
+ * if error, catch them and doesn't fails
+ */
+app.use((req, res, next) => {
+  bodyParser.json()(req, res, err => {
+      if (err) // catches erros - when invalid json input
+          return res.status(400).send(`${err}`); // Bad request
+      next();
+  });
+});
 
 app.use('/api/', routes);
 

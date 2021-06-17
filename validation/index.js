@@ -13,6 +13,23 @@ ajv.addSchema(loginSchema, 'login-user')
 ajv.addSchema(registrationSchema, 'registration-user')
 
 /**
+ * prettify the errors generated during input validation
+ * @param {Object[]} errors - list of errors generated during input validation
+ * @returns 
+ */
+let prettifyErrors = (errors) => {
+  let output = "";
+  errors.forEach(error => {
+    const { instancePath, message } = error; // extract data to generate the custome message
+    const errorField = instancePath.replace("/", ""); // remove initial '/' from error location
+    output = output.concat(`\n${errorField}: ${message}`);
+  })
+  
+  return output;
+}
+
+
+/**
  * Validates incoming request bodies against the given schema,
  * providing an error response when validation fails
  * @param  {String} schemaName - name of the schema to validate
@@ -22,10 +39,11 @@ let validateSchema = (schemaName) => {
     return (req, res, next) => {
       let valid = ajv.validate(schemaName, req.body)
       if (!valid) {
-        return res.status(400).send(ajv.errors);
+        return res.status(400).send(prettifyErrors(ajv.errors));
       }
-      next()
+      next();
     }
-  }
+}
+  
 
 module.exports = validateSchema;

@@ -88,6 +88,6 @@ let regenerateCookie = () => {
 /**
  * login end point
  */
-login.get("/", validateSchema('login-user'), validateUserCredentials(), regenerateCookie(), returnAdditionalUserInfo());
+login.post("/", validateSchema('login-user'), validateUserCredentials(), regenerateCookie(), returnAdditionalUserInfo());
 
 module.exports = login;
