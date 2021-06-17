@@ -30,7 +30,7 @@ const auth = require('./auth');
 
 const user_analytics = require('./user_analytics'); // example for user_analytics usage
 
-const { stringify, str } = require('ajv');
+const { stringify } = require('ajv');
 
 routes.use('/stocks', stocks)
 routes.use('/history', history)

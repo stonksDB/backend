@@ -78,6 +78,9 @@ let regenerateCookie = () => {
 
     const merged_info = {}
     merged_info.share_holder_info = req.share_holder;
+    // remove password - privacy issue
+    merged_info.share_holder_info["password"] = "ops, this fiels should be private";
+    
     merged_info.follows = followed_sectors;
     merged_info.likes = liked_tickers;
 
