@@ -15,7 +15,7 @@ routes.use(session({
     saveUninitialized: false,
     cookie: {
         httpOnly: true,
-        sameSite: none
+        sameSite: 'none'
     },
     store: sessionStore,
     resave: true
