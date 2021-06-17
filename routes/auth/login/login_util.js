@@ -49,3 +49,19 @@
 
   return list;
 }
+
+/**
+ * From the share_holder returned from db, omit the password value
+ * @param {SequelizeInstance:share_holder} sequelize_instance 
+ * @returns 
+ */
+exports.removePassword = (sequelize_instance) => {
+  const share_holder_json = JSON.stringify(sequelize_instance);
+  const share_holder_dict = JSON.parse(share_holder_json);
+
+  //remove passowrd property
+  delete share_holder_dict.password;
+  delete share_holder_dict.additionalField;
+
+  return share_holder_dict;
+}

@@ -62,3 +62,15 @@ exports.checkEmailAvailable = () => {
         }
     )};
 };
+
+/**
+ * Builds the query for follow tuples searching
+ * @param {Integer} share_holder_id
+ * @returns {Object} - query object
+ */
+ exports.getListOfSectors = (tuples) => {
+  const list = [];
+  tuples.forEach(tuple => list.push(tuple.sector_id));
+
+  return list;
+}
