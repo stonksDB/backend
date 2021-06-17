@@ -10,7 +10,7 @@ const corsOptions = {
   "methods": "GET,HEAD,PUT,PATCH,POST,DELETE",
   "credentials": "true"
 }
-app.use(cors())
+app.use(cors(corsOptions));
 
 // To support URL-encoded bodies
 app.use(bodyParser.urlencoded({ extended: true }));
