@@ -47,6 +47,7 @@ let regenerateCookie = () => {
     req.session.regenerate((err) => {
       req.session.user = {};
       req.session.user.email = email;
+      req.session.user.share_holder_id = req.locals.share_holder.share_holder_id;
     });
     next();
   }

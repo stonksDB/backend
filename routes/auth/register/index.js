@@ -28,7 +28,6 @@ let follow_tuples_array = (body, share_holder_id) => {
   const { follows } = body
 
   const filtered = follows.filter((val) => val >= 0 & val<= 14)
-  console.log(`Filtered ids: ${JSON.stringify(filtered)}`)
 
   let id_set = new Set(filtered); // remove duplicates
   
@@ -106,13 +105,14 @@ let follow_tuples_array = (body, share_holder_id) => {
  * Update current user session - add its email address in the user object
  * @returns 200 OK - successfully updated the user session
  */
-let addUserMailToCookie = () => {
+let regenerateCookie = () => {
   return (req, res, next) => {
     const { email } = req.body;
     
     // add user info to the session 
     req.session.user = {}
     req.session.user.email = email;
+    req.session.user.share_holder_id = req.locals.share_holder_obj.share_holder_id;
 
     next();
   }
@@ -145,7 +145,7 @@ register.post("/"
   , checkEmailPasswordMatches()
   , checkEmailAvailable()
   , registerNewUser()
-  , addUserMailToCookie()
+  , regenerateCookie()
   , returnUserInfo());
 
 module.exports = register;
