@@ -27,6 +27,7 @@ const news = require('./news');
 const search = require('./search')
 const company = require('./company')
 const auth = require('./auth');
+const landpage = require('./landpage');
 
 const user_analytics = require('./user_analytics'); // example for user_analytics usage
 
@@ -38,6 +39,7 @@ routes.use('/news', news)
 routes.use('/search', search)
 routes.use('/company', company)
 routes.use('/auth', auth)
+routes.use('/landpage', landpage)
 routes.use('/user_analytics', user_analytics) // example for user_analytics usage
 
 routes.get('/info', (req, res) => {
