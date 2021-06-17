@@ -5,14 +5,11 @@ const app = express()
 const routes = require('./routes')
 const bodyParser = require("body-parser")
 
-// swagger
-/*
-const swaggerUi = require('swagger-ui-express')
-const swaggerDocument = require('./swagger.json')
-var swaggerJSDoc = require('swagger-jsdoc')
-const specs = swaggerJSDoc(swaggerDocument)
-*/
-
+const corsOptions = {
+  "origin": "*",
+  "methods": "GET,HEAD,PUT,PATCH,POST,DELETE",
+  "credentials": "true"
+}
 app.use(cors())
 
 // To support URL-encoded bodies
