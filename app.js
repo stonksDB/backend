@@ -6,9 +6,10 @@ const routes = require('./routes')
 const bodyParser = require("body-parser")
 
 const corsOptions = {
-  "origin": "*",
+  "origin": "true",
   "methods": "GET,HEAD,PUT,PATCH,POST,DELETE",
-  "credentials": "true"
+  "credentials": "true",
+  "allowedHeaders": "Content-Type, x-requested-with"
 }
 app.use(cors(corsOptions));
 
