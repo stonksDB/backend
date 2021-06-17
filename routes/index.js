@@ -14,7 +14,8 @@ routes.use(session({
     name: "this-should-be-secret",
     saveUninitialized: false,
     cookie: {
-        httpOnly: true
+        httpOnly: true,
+        sameSite: none
     },
     store: sessionStore,
     resave: true
