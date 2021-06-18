@@ -28,11 +28,6 @@ app.use((req, res, next) => {
   });
 });
 
-app.use('/', (req, res, next) => {
-  console.log(`Request URL: ${fullUrl(req)}`);
-  next();
-});
-
 app.use('/api/', routes);
 
 // shows the stonks Website
