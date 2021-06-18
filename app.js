@@ -5,6 +5,8 @@ const app = express()
 const routes = require('./routes')
 const bodyParser = require("body-parser")
 
+const url = require('url');
+
 const corsOptions = {
   origin: "[http://localhost:8080,https://stonksdb.github.io/stonx_frontend/]", // should be updated with the frontend URL
   "methods": "GET,HEAD,PUT,PATCH,POST,DELETE",
@@ -26,6 +28,19 @@ app.use((req, res, next) => {
           return res.status(400).send(`${err}`); // Bad request
       next();
   });
+});
+
+function fullUrl(req) {
+  return url.format({
+    protocol: req.protocol,
+    host: req.get('host'),
+    pathname: req.originalUrl
+  });
+}
+
+app.use('/', (req, res, next) => {
+  console.log(`Request URL: ${fullUrl(req)}`);
+  next();
 });
 
 app.use('/api/', routes);
