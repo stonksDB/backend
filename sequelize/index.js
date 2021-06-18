@@ -10,7 +10,8 @@ const modelDefiners = [
 	require('./models/news.model'),
 	require('./models/share_holder.model'),
 	require('./models/follow.model'),
-	require('./models/like.model')
+	require('./models/like.model'),
+	require('./models/company.model')
 	//require('./models/company.model')
 ];
 
