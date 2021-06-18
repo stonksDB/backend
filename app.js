@@ -6,10 +6,8 @@ const routes = require('./routes')
 const bodyParser = require("body-parser")
 
 const corsOptions = {
-  origin: "[http://localhost:8080,https://stonksdb.github.io]", // should be updated with the frontend URL
-  "methods": "GET,HEAD,PUT,PATCH,POST,DELETE",
-  credentials: true,
-  "allowedHeaders": "Content-Type, x-requested-with"
+  origin: "*", // should be updated with the frontend URL
+  "methods": "GET,HEAD,PUT,PATCH,POST,DELETE"
 }
 app.use(cors(corsOptions));
 
