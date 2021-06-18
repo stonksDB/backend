@@ -35,7 +35,7 @@ follow.delete('/:sector', (req, res) => {
   const sector_id = req.params.sector;
 
   if(sector_id>= 0 && sector_id <= 14) { // check if value meaningful
-    // insert in tuple
+    // delete in tuple
     sequelize.transaction(async (t) => {
       await sequelize.models.follow.destroy(
         {
