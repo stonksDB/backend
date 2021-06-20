@@ -1,15 +1,29 @@
-const companies = require('express').Router();
-const baseUrl = "127.0.0.1:5000"
-//const baseUrl = "25.68.176.166"
+/**
+ * returns the information about the company associated with the :ticker provided
+ */
+const company = require('express').Router();
+const sequelize = require('./../../sequelize');
 
-const axios = require('axios')
+company.get("/all", (_, res) => { 
+   // load companies from db - query the companies view created
+   sequelize.models.company.findAll().then(companies => { return res.status(200).send(JSON.stringify(companies)) })
+      .catch(err => { return res.status(400).send(JSON.stringify(err))});
+});
 
-companies.get("/", getCompany);
+company.get("/single/:ticker", (req, res) => {
+   const ticker = req.params.ticker;
 
-async function getCompany(req, res) {
+   sequelize.models.company.findOne(
+      {
+         where:{
+            ticker: ticker
+         }
+      }).then(cmp => { 
+         if(!cmp) // no company matching the ticker provided
+            return res.status(400).send("Invalid Ticker");
+         else
+            return res.status(200).send(JSON.stringify(cmp)) 
+      }).catch(_ => { return res.status(500).send('Error on database read!') })
+})
 
-   res.send("ciaoo")
-
-};
-
-module.exports = companies;
+module.exports = company;

@@ -12,7 +12,7 @@ const logout = require('express').Router();
 /**
  * logout end point - invoked only if the user is logged in
  */
-logout.get("/", (req, res) => {
+logout.post("/", (req, res) => {
     // regenerate the session without user information attached
     return req.session.regenerate(err => {
       return res.status(200).send(`Successfully logged out!`);

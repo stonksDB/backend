@@ -10,10 +10,6 @@ module.exports = (sequelize) => {
         sector_name: {
             type: DataTypes.STRING(50),
             allowNull: false
-        },
-        sector_description: {
-            type: DataTypes.STRING(255),
-            allowNull: true
         }
     }, {
         tableName:"sectors"

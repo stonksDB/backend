@@ -8,32 +8,34 @@ module.exports = (sequelize) => {
             type: DataTypes.STRING(8),
             allowNull: false,
             primaryKey: true
-        },
-        company_name: {
+        },     
+        name: {
             type: DataTypes.STRING(80)
         },
-        market_cap: {
-            type: DataTypes.INTEGER
+        sector: {
+            type: DataTypes.STRING(50),
+            allowNull: false
         },
         logo_url: {
             type: DataTypes.STRING(200)
         },
-        full_time_employees: {
-            type: DataTypes.INTEGER
-        },
         city: {
             type: DataTypes.STRING(50)
-        },
-        industry_id: {
-            type: DataTypes.INTEGER
         },
         website: {
             type: DataTypes.STRING(200)
         },
         phone: {
             type: DataTypes.STRING(25)
-        }
+        },
+        state: {
+            type: DataTypes.STRING(80),
+            allowNull: false
+        },
+        industry_id: {
+            type: DataTypes.INTEGER
+        }        
     }, {
-        tableName: 'companies'
+        tableName:"companies"
     })
 }

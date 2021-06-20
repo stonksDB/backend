@@ -12,7 +12,7 @@ async function getHistoryByTicker(req, res) {
     const period = req.query.period ?? '1d'
 
     //check
-
+    console.log("Received ticker: " + ticker);
     axios.defaults.port = 5000;
     axios.get("http://localhost:5000/history/" + ticker, { params: { "period": period } })
         .then(resP => {

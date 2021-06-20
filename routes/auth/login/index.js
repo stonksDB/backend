@@ -6,7 +6,7 @@ const sequelize = require('../../../sequelize'); // db interaction
 
 // utility functions
 const { hash } = require('../auth_util'); 
-const { withCredentials, withShareHolderId, getListOfSectors, getListOfTickers } = require('./login_util')
+const { withCredentials, withShareHolderId, getListOfSectors, getListOfTickers, removePassword } = require('./login_util')
 
 /**
  * Checks if user already logged -> req.session.user != null or undefined
@@ -25,11 +25,12 @@ login.use((req, res, next) => {
 let validateUserCredentials = () => {
     return(req, res, next) => {
         const { email, password } = req.body;
-        return sequelize.models.share_holder.findOne(withCredentials(email, hash(password))).then(share_holder => {
-            if(!share_holder) 
+        return sequelize.models.share_holder.findOne(withCredentials(email, hash(password))).then(share_holder_raw => {
+            if(!share_holder_raw) 
                 return res.status(401).send(`Email or Password wrong!`);
-            // attach share_holder returned to req object!
-            req.share_holder = share_holder;
+            // attach share_holder returned to req object - eval the raw description
+            req.locals = {};
+            req.locals.share_holder = removePassword(share_holder_raw);
             next();
         });
     };
@@ -46,6 +47,7 @@ let regenerateCookie = () => {
     req.session.regenerate((err) => {
       req.session.user = {};
       req.session.user.email = email;
+      req.session.user.share_holder_id = req.locals.share_holder.share_holder_id;
     });
     next();
   }
@@ -59,14 +61,14 @@ let regenerateCookie = () => {
   return async (req, res) => {
     const empty_json_object = JSON.parse("{}")
 
-    const follow_tuples = await sequelize.models.follow.findAll(withShareHolderId(req.share_holder.share_holder_id))
+    const follow_tuples = await sequelize.models.follow.findAll(withShareHolderId(req.locals.share_holder.share_holder_id))
       .then(result => {
         if(!result)
           return empty_json_object; // empty Json Object
         return result;
       });
 
-    const like_tuples = await sequelize.models.like.findAll(withShareHolderId(req.share_holder.share_holder_id))
+    const like_tuples = await sequelize.models.like.findAll(withShareHolderId(req.locals.share_holder.share_holder_id))
       .then(result => {
         if(!result)
           return empty_json_object; // empty Json Object
@@ -77,7 +79,7 @@ let regenerateCookie = () => {
     const followed_sectors = getListOfSectors(follow_tuples);
 
     const merged_info = {}
-    merged_info.share_holder_info = req.share_holder;
+    merged_info.share_holder_info = req.locals.share_holder;
     merged_info.follows = followed_sectors;
     merged_info.likes = liked_tickers;
 
@@ -88,6 +90,6 @@ let regenerateCookie = () => {
 /**
  * login end point
  */
-login.get("/", validateSchema('login-user'), validateUserCredentials(), regenerateCookie(), returnAdditionalUserInfo());
+login.post("/", validateSchema('login-user'), validateUserCredentials(), regenerateCookie(), returnAdditionalUserInfo());
 
 module.exports = login;

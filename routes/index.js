@@ -15,7 +15,7 @@ routes.use(session({
     saveUninitialized: false,
     cookie: {
         httpOnly: true,
-        sameSite: true,
+        sameSite: 'none'
     },
     store: sessionStore,
     resave: true
@@ -28,10 +28,9 @@ const search = require('./search')
 const company = require('./company')
 const auth = require('./auth');
 const landpage = require('./landpage');
+const user = require('./user');
 
 const user_analytics = require('./user_analytics'); // example for user_analytics usage
-
-const { stringify, str } = require('ajv');
 
 routes.use('/stocks', stocks)
 routes.use('/history', history)
@@ -40,6 +39,7 @@ routes.use('/search', search)
 routes.use('/company', company)
 routes.use('/auth', auth)
 routes.use('/landpage', landpage)
+routes.use('/user', user)
 routes.use('/user_analytics', user_analytics) // example for user_analytics usage
 
 routes.get('/info', (req, res) => {
