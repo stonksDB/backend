@@ -1,8 +1,7 @@
 const news = require('express').Router();
 const { models } = require('../../sequelize');
-const { Op } = require('sequelize');
-
-const fs = require('fs');
+const redis = require("redis");
+const client = redis.createClient();
 
 const axios = require('axios');
 const { resolve } = require('path');
@@ -26,7 +25,7 @@ async function getNewsPersonalized(req, res) {
             attributes: ["ticker"]
         })
 
-        rows.map(t => t.get("ticker")).reduce((s, e) => s.add(e), ticker_set);        
+        rows.map(t => t.get("ticker")).reduce((s, e) => s.add(e), ticker_set);
 
         //2) search for redis
 
@@ -38,7 +37,7 @@ async function getNewsPersonalized(req, res) {
     //3) fallback to getUserLoggedOut
     if (ticker_set.size == 0) {
 
-        await getMostSearchedTickerRedis();
+        let array_from_redis = await getMostSearchedTickerRedis();
         array_from_redis.reduce((s, e) => s.add(e), ticker_set);
 
     }
@@ -88,8 +87,8 @@ function getNewsByTickerList(list_ticker) {
 
         });
 
-        Promise.all(promisesList).then(news => {        
-            news = Array.prototype.concat.apply([], news);            
+        Promise.all(promisesList).then(news => {
+            news = Array.prototype.concat.apply([], news);
             resolve(news)
         })
     })
@@ -97,7 +96,15 @@ function getNewsByTickerList(list_ticker) {
 }
 
 async function getMostSearchedTickerRedis() {
-    return Promise.resolve(["TSLA", "AAPL", "RACE", "BYND", "PLTR"])
+    return new Promise((resolve, reject) => {
+        const args1 = ["ticker_set", "0", "10000"];
+
+        client.zrevrange(args1, function (rangeError, rangeResponse) {
+            if (rangeError) reject(rangeError);
+            console.log("response2", rangeResponse);
+            resolve(rangeResponse)
+        });
+    });   
 }
 
 async function getNewsByTicker(ticker, number) {

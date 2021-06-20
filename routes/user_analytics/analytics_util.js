@@ -3,7 +3,8 @@ const redis = require('redis');
 // client for interaction
 const client = redis.createClient({
     host: 'localhost',
-    port: 6379
+    port: 6379,
+    db: 0
 });
 
 const analytics_db = 1;
