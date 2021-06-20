@@ -2,8 +2,37 @@ var express = require('express');
 
 var router = express.Router();
 
-router.get('/', function(req, res) {
-    res.send('/stocks to retrive stock information\n/news to retrieve news information!');
-});
+const { models } = require('../../sequelize');
+
+router.get('/indexes', indexesData);
+router.get('/most_performing', mostPerformingData);
+router.get('/likes', likedStockData);
+
+async function indexesData() {
+
+    res.send(["^GSPC", "^DJI", "^IXIC", "^NYA", "^XAX", "^RUT", "^BUK100P"])
+
+}
+
+async function mostPerformingData() {
+
+}
+
+async function likedStockData(req, res) {
+
+    console.log("ciaoo")
+
+    //1) search for follows
+    const rows = await models.like.findAll({
+        where: {
+            //TODO
+            share_holder_id: 13
+        },
+        limit: 4,
+        attributes: ["ticker"]
+    })    
+
+    res.status(200).send(rows.map(t => t.get("ticker")))
+}
 
 module.exports = router;
