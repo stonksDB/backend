@@ -1,48 +1,35 @@
 const stocks = require('express').Router();
-const baseUrl = "127.0.0.1:5000"
-//const baseUrl = "25.68.176.166"
+const baseUrl = "25.68.176.166"
 
 const axios = require('axios')
 const redis = require("redis");
 const client = redis.createClient();
+
+const { update_ticker_counter_global } = require('../redis/global_redis_utils')
+const { update_ticker_counter_user } = require('../redis/user_redis_utils')
 
 stocks.get("/:ticker", getHistoryByTicker);
 
 async function getHistoryByTicker(req, res) {    
 
     const ticker = req.params.ticker;
-    const period = req.query.period ?? '1d'
+    const period = req.query.period ?? '1d'    
 
-    addSearchToRedis(ticker);
+    update_ticker_counter_global(ticker);
+    if(req.session.user.email) update_ticker_counter_user(req.session.user.email, ticker);
 
     //check
     console.log("Received ticker: " + ticker);
     axios.defaults.port = 5000;
-    axios.get("http://localhost:5000/history/" + ticker, { params: { "period": period } })
+    axios.get("http://" + baseUrl + ":5000/history/" + ticker, { params: { "period": period } })
         .then(resP => {
-            console.log(resP)
+            console.log("res", resP)
             res.send(resP.data)
         })
         .catch(error => {
-            res.send(error)
-            console.log();
+            res.send(error)            
         });
 
 };
-
-function addSearchToRedis(ticker){
-    client.zscore("ticker_set", ticker, function(err, res) {
-        if(err) console.log(err)
-
-        console.log("res: ",res)
-        args = ["ticker_set", (parseInt(res) + 1), ticker]
-
-        client.zadd(args, function(err, res){
-            console.log(res)
-        })
-
-    })
-    
-}
 
 module.exports = stocks;

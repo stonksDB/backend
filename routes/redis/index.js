@@ -4,7 +4,7 @@
 
 const user_analytics = require('express').Router();
 
-const { get_user_analytics, update_ticker_counter } = require('./analytics_util')
+const { get_user_analytics, update_ticker_counter } = require('./user_redis_utils')
 
 user_analytics.get('/insert', (req, res) => {
     const { ticker, email } = req.body;

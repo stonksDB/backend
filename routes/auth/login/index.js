@@ -11,7 +11,7 @@ const { withCredentials, withShareHolderId, getListOfSectors, getListOfTickers, 
 /**
  * Checks if user already logged -> req.session.user != null or undefined
  */
-login.use((req, res, next) => {
+login.use((req, res, next) => {  
   if(req.session.user) {
     return res.status(401).send(`You are already logged!.`);
   }
