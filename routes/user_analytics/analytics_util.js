@@ -2,7 +2,7 @@ const redis = require('redis');
 
 // client for interaction
 const client = redis.createClient({
-    host: 'localhost',
+    host: '25.68.176.166',
     port: 6379,
     db: 0
 });
@@ -40,6 +40,33 @@ exports.get_user_analytics = (key, callback) => {
  * @returns 
  */
 exports.update_ticker_counter = (user, ticker) => {
+    return client.select(analytics_db, (err, _) => {
+        if(err)
+            console.log(err);
+        // successfully selected the db
+        else 
+            return this.get_user_analytics(user, (json_obj) => {
+                if (json_obj[ticker]) {
+                    let counter = json_obj[ticker]
+                    json_obj[ticker] = counter + 1 // increment
+                }
+                else {
+                    json_obj[ticker] = 1 // create new attribute
+                }
+                
+                // store back value
+                client.set(user, JSON.stringify(json_obj));
+            });
+    })
+}
+
+/**
+ * Update number of searches for particular ticker
+ * @param {String} user - email of the user 
+ * @param {String} ticker - ticker for which to update the counter
+ * @returns 
+ */
+ exports.update_ticker_counter = (ticker) => {
     return client.select(analytics_db, (err, _) => {
         if(err)
             console.log(err);
