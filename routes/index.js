@@ -22,10 +22,8 @@ routes.use(session({
 }))
 
 const stocks = require('./stocks')
-const history = require('./history');
 const news = require('./news');
 const search = require('./search')
-const company = require('./company')
 const auth = require('./auth');
 const landpage = require('./landpage');
 const user = require('./user');
@@ -33,10 +31,8 @@ const user = require('./user');
 const user_analytics = require('./redis'); // example for user_analytics usage
 
 routes.use('/stocks', stocks)
-routes.use('/history', history)
 routes.use('/news', news)
 routes.use('/search', search)
-routes.use('/company', company)
 routes.use('/auth', auth)
 routes.use('/landpage', landpage)
 routes.use('/user', user)
