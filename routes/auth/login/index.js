@@ -23,17 +23,18 @@ login.use((req, res, next) => {
  * @returns - error 401 email or password wrong
  */
 let validateUserCredentials = () => {
-    return(req, res, next) => {
-        const { email, password } = req.body;
-        return sequelize.models.share_holder.findOne(withCredentials(email, hash(password))).then(share_holder_raw => {
-            if(!share_holder_raw) 
-                return res.status(401).send(`Email or Password wrong!`);
-            // attach share_holder returned to req object - eval the raw description
-            req.locals = {};
-            req.locals.share_holder = removePassword(share_holder_raw);
-            next();
-        });
-    };
+  return(req, res, next) => {
+    const { email, password } = req.body;
+      return sequelize.models.share_holder.findOne(withCredentials(email, hash(password))).then(shareHolderRaw => {
+        if(!shareHolderRaw) 
+          return res.status(401).send(`Email or Password wrong!`);
+            
+        // attach share_holder returned to req object - eval the raw description
+        req.locals = {};
+        req.locals.share_holder = removePassword(shareHolderRaw);
+        next();
+    });
+  };
 };
 
 /**
@@ -59,31 +60,31 @@ let regenerateCookie = () => {
  */
  let returnAdditionalUserInfo = () => {
   return async (req, res) => {
-    const empty_json_object = JSON.parse("{}")
+    const emptyJsonObject = JSON.parse("{}")
 
-    const follow_tuples = await sequelize.models.follow.findAll(withShareHolderId(req.locals.share_holder.share_holder_id))
+    const followTuples = await sequelize.models.follow.findAll(withShareHolderId(req.locals.share_holder.share_holder_id))
       .then(result => {
         if(!result)
-          return empty_json_object; // empty Json Object
+          return emptyJsonObject; // empty Json Object
         return result;
       });
 
-    const like_tuples = await sequelize.models.like.findAll(withShareHolderId(req.locals.share_holder.share_holder_id))
+    const likeTuples = await sequelize.models.like.findAll(withShareHolderId(req.locals.share_holder.share_holder_id))
       .then(result => {
         if(!result)
-          return empty_json_object; // empty Json Object
+          return emptyJsonObject; // empty Json Object
         return result;
       })
 
-    const liked_tickers = getListOfTickers(like_tuples);
-    const followed_sectors = getListOfSectors(follow_tuples);
+    const followedSectors = getListOfSectors(followTuples);
+    const likedTickers = getListOfTickers(likeTuples);
 
-    const merged_info = {}
-    merged_info.share_holder_info = req.locals.share_holder;
-    merged_info.follows = followed_sectors;
-    merged_info.likes = liked_tickers;
+    const mergedInfo = {}
+    mergedInfo.share_holder_info = req.locals.share_holder;
+    mergedInfo.follows = followedSectors;
+    mergedInfo.likes = likedTickers;
 
-    return res.status(200).send(JSON.stringify(merged_info));
+    return res.status(200).send(JSON.stringify(mergedInfo));
   }
 }
 
