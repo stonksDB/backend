@@ -37,6 +37,16 @@ module.exports = (sequelize) => {
         },
         phone: {
             type: DataTypes.STRING(25)
+        },
+        price_last_update: {
+            type: DataTypes.STRING(25),
+            allowNull: false,
+            defaultValue: 'unknown'
+        },
+        ratio: {
+            type: DataTypes.DOUBLE,
+            allowNull: false,
+            defaultValue: 1.0
         }        
     }, {
         tableName:"stocks"
