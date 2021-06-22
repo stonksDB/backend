@@ -1,54 +1,68 @@
 const news = require('express').Router();
-const { models } = require('../../sequelize');
+const sequelize = require('../../sequelize');
 const { Op } = require('sequelize');
 
+/**
+ * endpoint supporting the interactive search-bar
+ */
 news.get("/", getSearchSuggestions);
+
 
 async function getSearchSuggestions(req, res) {
 
-    const key = req.query.key ?? "";
+	const searchKey = req.query.searchKey ?? ""; // since empty string always matches as substring
+	
+	const RESULT_LIMIT = 3;
 
-    const withParametersTicker = buildQueryTicker(3, key.toUpperCase());
-    const withParametersName = buildQueryName(3, key.toUpperCase());
+	const byTicker = buildQueryByTicker(RESULT_LIMIT, searchKey.toUpperCase());
+	const byName = buildQueryByName(RESULT_LIMIT, searchKey.toUpperCase());
 
-    try {
+	try {
+		const matches_ticker = await sequelize.models.stock.findAll(byTicker);
+		const matches_name = await sequelize.models.stock.findAll(byName);
+		
+		// merge results together
+		const result = {
+				tickers: matches_ticker,
+				names: matches_name,
+		}
 
-        const rows_ticker = await models.stock.findAll(withParametersTicker);
-        const rows_name = await models.stock.findAll(withParametersName);
-
-        const result = {
-            tickers: rows_ticker,
-            names: rows_name,
-        }
-
-        res.status(200).json(result);
-    } catch (error) {
-        console.log("there was an error", error)
-    }
+		return res.status(200).send(JSON.stringify(result));
+	} catch (error) {
+			return res.status(500).send(JSON.stringify(error))
+	}
 
 };
 
-function buildQueryTicker(limit, key) {
+/**
+ * 
+ * @param {Integer} limit number of matching tickers returned 
+ * @param {String} searchKey substirng to be matched
+ * @returns query object
+ */
+let buildQueryByTicker = (limit, searchKey) => {
 
-    const query = {
-        where: {
-            [Op.and]: [
-                { ticker: { [Op.substring]: key } }
-            ]
-        },
-        attributes: ["name", "ticker"],
-        limit: limit
+	return {
+		where: {
+			ticker: { [Op.substring]: searchKey } },
+
+			attributes: ["name", "ticker"], // returned attributes
+			limit: limit
     }
-
-    return query;
 }
 
-function buildQueryName(limit, key) {
+/**
+ * 
+ * @param {Integer} limit number of matching company names returned
+ * @param {String} searchKey 
+ * @returns 
+ */
+let buildQueryByName = (limit, searchKey) => {
 
     const query = {
         where: {
             [Op.and]: [
-                { name: { [Op.substring]: key } }
+                { name: { [Op.substring]: searchKey } }
             ]
         },
         attributes: ["name", "ticker"],
