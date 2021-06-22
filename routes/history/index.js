@@ -1,7 +1,7 @@
 const stocks = require('express').Router();
 const baseUrl = "25.68.176.166"
 
-const axios = require('axios')
+const axios = require('axios');
 const redis = require("redis");
 const client = redis.createClient();
 
@@ -16,7 +16,8 @@ async function getHistoryByTicker(req, res) {
     const period = req.query.period ?? '1d'    
 
     update_ticker_counter_global(ticker);
-    if(req.session.user.email) update_ticker_counter_user(req.session.user.email, ticker);
+    console.log(req.session)
+    if(req.session.user) update_ticker_counter_user(req.session.user.email, ticker);
 
     //check
     console.log("Received ticker: " + ticker);
@@ -27,6 +28,7 @@ async function getHistoryByTicker(req, res) {
             res.send(resP.data)
         })
         .catch(error => {
+            console.log("err", error)
             res.send(error)            
         });
 

@@ -1,10 +1,14 @@
 const news = require('express').Router();
 const { models } = require('../../sequelize');
-const redis = require("redis");
-const client = redis.createClient();
 
 const axios = require('axios');
 const { resolve } = require('path');
+
+const { get_most_searched_tickers } = require('../redis/global_redis_utils')
+const { get_user_analytics } = require('../redis/user_redis_utils')
+
+
+
 news.get('/', getNewsPersonalized)
 news.get("/:ticker", getNewsByTickerRequestHandler);
 news.get("/single/:uuid", getSingleNewsByUuid);
@@ -13,9 +17,10 @@ async function getNewsPersonalized(req, res) {
 
     const ticker_set = new Set()
 
-    if (isUserLogged(req.session.user)) {
+    if (isUserLogged(req.session.user)) {        
 
-        const share_holder_id = await getShareHolderId(req.session.user.email);
+        const email = req.session.user.email;
+        const share_holder_id = req.session.user.share_holder_id;
 
         //1) search for follows
         const rows = await models.like.findAll({
@@ -27,9 +32,10 @@ async function getNewsPersonalized(req, res) {
 
         rows.map(t => t.get("ticker")).reduce((s, e) => s.add(e), ticker_set);
 
-        //2) search for redis
+        console.log("redis")
 
-        let array_from_redis = await getMostSearchedTickerRedis();
+        //2) search for redis
+        let array_from_redis = await get_user_analytics(email);        
         array_from_redis.reduce((s, e) => s.add(e), ticker_set);
 
     }
@@ -37,26 +43,26 @@ async function getNewsPersonalized(req, res) {
     //3) fallback to getUserLoggedOut
     if (ticker_set.size == 0) {
 
-        let array_from_redis = await getMostSearchedTickerRedis();
+        let array_from_redis = await get_most_searched_tickers();
         array_from_redis.reduce((s, e) => s.add(e), ticker_set);
 
     }
 
-    let array_news = Array.from(ticker_set)
+    let array_news = Array.from(ticker_set)    
     getNewsByTickerList(array_news).then(news => {
 
         res.send(news);
 
     }).catch(err => {
         console.log(err)
-    })
-
+    })    
 }
 
 function isUserLogged(user) {
 
     var logged = user == undefined ? false : true;
     return logged;
+
 }
 
 async function getShareHolderId(mail) {
@@ -95,18 +101,6 @@ function getNewsByTickerList(list_ticker) {
 
 }
 
-async function getMostSearchedTickerRedis() {
-    return new Promise((resolve, reject) => {
-        const args1 = ["ticker_set", "0", "10000"];
-
-        client.zrevrange(args1, function (rangeError, rangeResponse) {
-            if (rangeError) reject(rangeError);
-            console.log("response2", rangeResponse);
-            resolve(rangeResponse)
-        });
-    });   
-}
-
 async function getNewsByTicker(ticker, number) {
 
     return new Promise((resolve, reject) => {
@@ -137,8 +131,6 @@ async function getNewsByTicker(ticker, number) {
 
                 results.push(smallElem)
             });
-
-            console.log(results)
 
             resolve(results);
 

@@ -15,16 +15,22 @@ const empty_json_str = "{}";
  * @returns - empty string if entry does not exist, JSON string if key matches
  */
 exports.get_user_analytics = async (key) => {
+    console.log(key)
 
     return new Promise((resolve, reject) => {
         client.get(key, (error, value) => {
-            if (error)          
+            if (error) {
+                console.log(error)
                 reject(error)
-            if(value === null){ // no key present for the user
+            }
+            if (value === null) { // no key present for the user
                 resolve({})
-            }            
+            }
             else // parse the data already present
-                resolve(JSON.parse(value))
+            {
+                let json = JSON.parse(value)                
+                resolve(Object.values(json))
+            }
         })
     });
 
