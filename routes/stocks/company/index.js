@@ -2,8 +2,7 @@
  * returns the information about the company associated with the :ticker provided
  */
 const company = require('express').Router();
-const sequelize = require('./../../sequelize');
-
+const sequelize = require('./../../../sequelize');
 
 
 company.get("/all", (_, res) => { 
