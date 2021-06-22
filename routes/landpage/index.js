@@ -16,7 +16,7 @@ async function indexesData(req, res) {
 }
 
 async function mostPerformingData(req, res) {   
-
+    
 }
 
 async function likedStockData(req, res) {
