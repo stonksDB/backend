@@ -30,7 +30,7 @@ const auth = require('./auth');
 const landpage = require('./landpage');
 const user = require('./user');
 
-const user_analytics = require('./user_analytics'); // example for user_analytics usage
+const user_analytics = require('./redis'); // example for user_analytics usage
 
 routes.use('/stocks', stocks)
 routes.use('/history', history)
