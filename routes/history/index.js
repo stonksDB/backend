@@ -1,6 +1,5 @@
 const stocks = require('express').Router();
-const baseUrl = "127.0.0.1:5000"
-//const baseUrl = "25.68.176.166"
+const baseUrl = "25.68.176.166"
 
 const axios = require('axios')
 
@@ -14,7 +13,7 @@ async function getHistoryByTicker(req, res) {
     //check
     console.log("Received ticker: " + ticker);
     axios.defaults.port = 5000;
-    axios.get("http://localhost:5000/history/" + ticker, { params: { "period": period } })
+    axios.get("http://"+ baseUrl +":5000/history/" + ticker, { params: { "period": period } })
         .then(resP => {
             console.log(resP)
             res.send(resP.data)
