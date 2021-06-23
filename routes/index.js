@@ -41,9 +41,9 @@ routes.use('/user_analytics', user_analytics) // example for user_analytics usag
 routes.get('/info', (req, res) => {
     if(!req.session)
         return res.status(400).send(`No session associated!`);
-    const sess = stringify(req.session);
-    const sess_id = stringify(req.session.id);
-    const sess_cookie = stringify(req.session.cookie);
+    const sess = JSON.stringify(req.session);
+    const sess_id = JSON.stringify(req.session.id);
+    const sess_cookie = JSON.stringify(req.session.cookie);
     const output = `req.session: ${sess}\n\nreq.session.id: ${sess_id}\n\nreq.session.cookie: ${sess_cookie}`
     return res.status(200).send(`Current session info: ${output}`);
 });
@@ -51,7 +51,7 @@ routes.get('/info', (req, res) => {
 routes.get('/session_all', (req, res) => {
     return sessionStore.all((error,sessions) =>{
         let sess_str = ''
-        sessions.forEach(sess => sess_str += '\n' + stringify(sess));
+        sessions.forEach(sess => sess_str += '\n' + JSON.stringify(sess));
         res.status(200).send(`Returned list of sessions: ${sess_str}`);
     })
 });
