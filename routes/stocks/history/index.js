@@ -15,18 +15,18 @@ async function getHistoryByTicker(req, res) {
     const period = req.query.period ?? '1d'    
 
     // user must explicitly states that he doesn't want the analytics on 
-    const analytics_should_be_updated = req.query.update_analytics ?? true
+    const analytics_should_be_updated = req.query.update_analytics == 'true'
 
     getHistoryTicker(ticker, period).then(result => {
         res.status(200).send(JSON.stringify(result))
 
+        console.log(`\n\n\n\n\n\n\nBoolean value: ${analytics_should_be_updated}`)
         if(analytics_should_be_updated)
             updateTickerCounters(req.session.user, ticker)
         // else do nothing
     }).catch(err => {        
         res.status(500).send(err)
     })
-    updateTickerCounters(ticker, req);
 };
 
 async function updateTickerCounters(user_info, ticker){

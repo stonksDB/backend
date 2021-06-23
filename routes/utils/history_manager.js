@@ -9,8 +9,6 @@ const config = require('../../config/config.json')
 
 exports.getHistoryTicker = (ticker, period) => {
 
-    console.log("called")
-
     return new Promise((resolve, reject) => {
 
         axios.defaults.port = 5000;
