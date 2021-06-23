@@ -14,7 +14,7 @@ const empty_json_str = "{}";
  * @param {String} key - email associated to the logged user
  * @returns - empty string if entry does not exist, JSON string if key matches
  */
-exports.get_user_analytics = async (key) => {
+exports.getUserAnalytics = async (key) => {
     console.log(key)
 
     return new Promise((resolve, reject) => {
@@ -42,9 +42,9 @@ exports.get_user_analytics = async (key) => {
  * @param {String} ticker - ticker for which to update the counter
  * @returns 
  */
-exports.update_ticker_counter_user = async (user, ticker) => {
+exports.updateTickerCounterUser = async (user, ticker) => {
 
-    this.get_user_analytics(user).then(json_obj => {
+    this.getUserAnalytics(user).then(json_obj => {
         if (json_obj[ticker]) {
             let counter = json_obj[ticker]
             json_obj[ticker] = counter + 1 // increment

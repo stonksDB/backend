@@ -4,8 +4,8 @@ const { models } = require('../../sequelize');
 const axios = require('axios');
 const { resolve } = require('path');
 
-const { get_most_searched_tickers } = require('../redis/global_redis_utils')
-const { get_user_analytics } = require('../redis/user_redis_utils')
+const { getMostSearchedTickers } = require('../redis/global_redis_utils')
+const { getUserAnalytics } = require('../redis/user_redis_utils')
 
 
 
@@ -35,7 +35,7 @@ async function getNewsPersonalized(req, res) {
         console.log("redis")
 
         //2) search for redis
-        let array_from_redis = await get_user_analytics(email);        
+        let array_from_redis = await getUserAnalytics(email);        
         array_from_redis.reduce((s, e) => s.add(e), ticker_set);
 
     }
@@ -43,7 +43,7 @@ async function getNewsPersonalized(req, res) {
     //3) fallback to getUserLoggedOut
     if (ticker_set.size == 0) {
 
-        let array_from_redis = await get_most_searched_tickers();
+        let array_from_redis = await getMostSearchedTickers();
         array_from_redis.reduce((s, e) => s.add(e), ticker_set);
 
     }

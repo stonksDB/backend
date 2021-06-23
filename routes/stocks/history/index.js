@@ -3,8 +3,8 @@ const stocks = require('express').Router();
 const axios = require('axios');
 const config = require('../../../config/config.json')
 
-const { update_ticker_counter_global } = require('../../redis/global_redis_utils')
-const { update_ticker_counter_user } = require('../../redis/user_redis_utils')
+const { updateTickerCounterGlobal } = require('../../redis/global_redis_utils')
+const { updateTickerCounterUser } = require('../../redis/user_redis_utils')
 
 stocks.get("/:ticker", getHistoryByTicker);
 
@@ -33,10 +33,10 @@ async function getHistoryByTicker(req, res) {
 };
 
 async function update_ticker_counters(){
-    update_ticker_counter_global(ticker);
+    updateTickerCounterGlobal(ticker);
 
     // only if logged
-    if(req.session.user) update_ticker_counter_user(req.session.user.email, ticker);
+    if(req.session.user) updateTickerCounterUser(req.session.user.email, ticker);
 }
 
 module.exports = stocks;
