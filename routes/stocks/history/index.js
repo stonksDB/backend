@@ -23,7 +23,7 @@ async function getHistoryByTicker(req, res) {
 
             // update only if data returned successfully and user desire it
             if(update_analytics)
-                update_ticker_counters()
+                update_ticker_counters(ticker)
             else 
                 return;
         })
@@ -32,7 +32,7 @@ async function getHistoryByTicker(req, res) {
         });
 };
 
-async function update_ticker_counters(){
+async function update_ticker_counters(ticker){
     updateTickerCounterGlobal(ticker);
 
     // only if logged
