@@ -53,20 +53,6 @@ async function getIndexesDataSequential(req, res) {
     return "";
 }
 
-async function mostPerformingData(req, res) {
-
-    const rows = await models.stock.findAll({
-        order: [
-            ['ratio', 'DESC']
-        ],
-        attributes: ["ticker", "name"],
-        limit: 4,
-    })
-
-    res.send(rows)
-
-}
-
 async function likedStockData(req, res) {
 
     //1) search for follows

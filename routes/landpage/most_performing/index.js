@@ -9,7 +9,7 @@ const { getHistoryTicker } = require('../../utils/history_manager')
  * returns a JSON array [{"ticker" : {<price_values>}]
  */
 router.get('/', (req, res) => {
-    const LIMIT = req.query.limit ?? 4; // 5 is default value
+    const LIMIT = req.query.limit ?? 4; // 4 is default value
 
     return sequelize.models.stock.findAll({
         order: [
