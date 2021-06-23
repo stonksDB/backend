@@ -14,7 +14,7 @@ exports.getHistoryTicker = (ticker, period) => {
     return new Promise((resolve, reject) => {
 
         axios.defaults.port = 5000;
-        axios.get("http://" + config.host + ":5000/history/" + ticker, { params: { "period": period } })
+        axios.get("http://" + "localhost" + ":8000/history/" + ticker, { params: { "period": period } })
             .then(resP => {                
                 resolve(resP.data)
             })

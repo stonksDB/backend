@@ -11,8 +11,11 @@ router.get('/most_performing', mostPerformingData);
 router.get('/likes', likedStockData);
 
 async function indexesData(req, res) {
+    // temporary turn aroung to retrieve data in sequential order
+    return getIndexesDataSequential(req, res);
     //const indexes = [{ ticker: "TSLA", name: "S&P 500" }, { ticker: "FTSEMIB.MI", name: "Borsa di Milano" }]
-    const indexes = [{ ticker: "^GSPC", name: "S&P 500" }, { ticker: "^DJI", name: "Dow 30	" }, { ticker: "^IXIC", name: "Nasdaq" }, { ticker: "FTSEMIB.MI", name: "FTSE MIB Index" }, { ticker: "^XAX", name: "NYSE AMEX COMPOSITE INDEX" }, { ticker: "^RUT", name: "Russell 2000" }, { ticker: "^BUK100P", name: "Cboe UK 100" }]
+    let indexes = [{ ticker: "^GSPC", name: "S&P 500" }, { ticker: "^DJI", name: "Dow 30	" }, { ticker: "^IXIC", name: "Nasdaq" }, { ticker: "FTSEMIB.MI", name: "FTSE MIB Index" }, { ticker: "^XAX", name: "NYSE AMEX COMPOSITE INDEX" }, { ticker: "^RUT", name: "Russell 2000" }, { ticker: "^BUK100P", name: "Cboe UK 100" }]
+
     //const indexes = [{ ticker: '^RUT', name: "Russell 2000" }, { ticker: '^GSPC', name: "S&P 500" }]
 
     const promises = []
@@ -22,6 +25,7 @@ async function indexesData(req, res) {
     //     res.send(result)
     // }).catch(err => console.log(err))
 
+    // create list of promises to retrieve the index data
     indexes.forEach(element => {
 
         console.log(element.ticker)
@@ -44,6 +48,10 @@ async function indexesData(req, res) {
         res.status(500).send(err)
     })
 
+}
+
+async function getIndexesDataSequential(req, res) {
+    return "";
 }
 
 async function mostPerformingData(req, res) {
