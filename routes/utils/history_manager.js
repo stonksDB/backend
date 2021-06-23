@@ -19,7 +19,7 @@ exports.getHistoryTicker = (ticker, period) => {
                 resolve(resP.data)
             })
             .catch(error => {
-                console.log(ticker)
+                console.log(ticker, error)
                 reject(error);
             });
     })
