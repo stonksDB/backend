@@ -14,7 +14,7 @@ async function getHistoryByTicker(req, res) {
     const period = req.query.period ?? '1d'    
     
     // user must explicitly states that he doesn't want the analytics on 
-    const update_analytics = req.query.update_analytics ?? true
+    const analytics_should_be_updated = req.query.update_analytics ?? true
 
     axios.defaults.port = 5000;
     axios.get("http://" + config.host + ":5000/history/" + ticker, { params: { "period": period } })
@@ -22,21 +22,22 @@ async function getHistoryByTicker(req, res) {
             res.status(200).send(JSON.stringify(resP.data))
 
             // update only if data returned successfully and user desire it
-            if(update_analytics)
+            if(analytics_should_be_updated)
                 update_ticker_counters(req.session.user.email, ticker)
             else 
                 return;
         })
         .catch(error => {
-            res.status(500).send(error);         
+            res.status(500).send(JSON.stringify(error));
         });
 };
 
 async function update_ticker_counters(email, ticker){
+    // global always updated
     updateTickerCounterGlobal(ticker);
 
     // only if logged
-    if(req.session.user) updateTickerCounterUser(req.session.user.email, ticker);
+    if(email) updateTickerCounterUser(email, ticker);
 }
 
 module.exports = stocks;
