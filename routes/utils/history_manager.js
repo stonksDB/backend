@@ -7,12 +7,16 @@ const config = require('../../config/config.json')
  * @param {String} ticker - ticker for which to update the counter
  */
 
-exports.getHistoryTicker = (ticker, period) => {
+exports.getHistoryTicker = (ticker, period, interval) => {
+
+    if(!interval){        
+        interval = "1m"
+    }    
 
     return new Promise((resolve, reject) => {
 
         axios.defaults.port = 5000;
-        axios.get("http://" + config.host + ":" + 5000 + "/history/" + ticker, { params: { "period": period } })
+        axios.get("http://" + config.host + ":" + 5000 + "/history/" + ticker, { params: { "period": period, "interval":interval } })
             .then(resP => {                
                 resolve(resP.data)
             })
