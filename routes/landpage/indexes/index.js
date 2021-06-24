@@ -14,13 +14,9 @@ async function indexesData(req, res) {
     let indexes = [{ ticker: "^GSPC", name: "S&P 500" }, { ticker: "^DJI", name: "Dow 30" }, { ticker: "^IXIC", name: "Nasdaq" }, { ticker: "FTSEMIB.MI", name: "FTSE MIB Index" }, { ticker: "^HSI", name: "Hang Seng Index" },  { ticker: "^XAX", name: "NYSE AMEX COMPOSITE INDEX" }]
 
 
-    //^
-
     const promises = []
 
     indexes.forEach(element => {
-
-        console.log(element.ticker)
 
         promises.push(getHistoryTicker(element.ticker, '1d', "15m"))
 
