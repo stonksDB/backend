@@ -10,7 +10,7 @@ news.get("/", getSearchSuggestions);
 
 async function getSearchSuggestions(req, res) {
 
-	const searchKey = req.query.searchKey ?? ""; // since empty string always matches as substring
+	const searchKey = req.query.key ?? ""; // since empty string always matches as substring
 	
 	const RESULT_LIMIT = 3;
 

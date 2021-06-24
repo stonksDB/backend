@@ -49,4 +49,4 @@ async function indexesData(req, res) {
 
 }
 
-module.exports = router;
+module.exports = indexesData;
