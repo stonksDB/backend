@@ -9,42 +9,56 @@ const { getUserAnalytics } = require('../utils/redis/user_redis_utils')
 
 
 
-news.get('/', getNewsPersonalized)
+news.get('/', getNews)
 news.get("/:ticker", getNewsByTickerRequestHandler);
 news.get("/single/:uuid", getSingleNewsByUuid);
 
-async function getNewsPersonalized(req, res) {
+/**
+ * Returns a set of news. Personalization applied
+ * 
+ * The news personalization happens in three different phases:
+ *  1) get user liked tickers - give priority to them since of interest for the user
+ *  2) get user most searched stocks - may be of interest since user has searched them 
+ *  3) get news based on general search counters - simulate preferencies based on other user preferencies
+ * 
+ * @param {Reqeust} req 
+ * @param {Response} res 
+ */
+async function getNews(req, res) {
 
-    const ticker_set = new Set()
+    // USER DEPENDENT PERSONALIZATION
+    const tickers_of_interest_for_user = new Set()
 
-    if (isUserLogged(req.session.user)) {        
-
+    if (userLogged(req.session.user)) {        
         const email = req.session.user.email;
         const share_holder_id = req.session.user.share_holder_id;
 
-        //1) search for follows
-        const rows = await models.like.findAll({
+        // 1) user liked tickers
+        const likes_tuples = await sequelize.models.like.findAll({
             where: {
                 share_holder_id: share_holder_id
             },
             attributes: ["ticker"]
-        })
+        });
 
-        rows.map(t => t.get("ticker")).reduce((s, e) => s.add(e), ticker_set);
+        likes_tuples
+            .map(tuple => tuple.get("ticker")) // extract value from Sequelize Result
+            // Could have been used a forEach maybe (?)
+            .reduce((tickerSet, newTicker) => tickerSet.add(newTicker), tickers_of_interest_for_user); // adds each ticker to the ticker_of_interest set
 
-        console.log("redis")
-
-        //2) search for redis
-        let array_from_redis = await getUserAnalytics(email);        
-        array_from_redis.reduce((s, e) => s.add(e), ticker_set);
-
+        // 2) search for redis
+        let tickers_search_by_user = await getUserAnalytics(email);        
+        tickers_search_by_user.reduce((tickerSet, newTicker) => tickerSet.add(newTicker), tickers_of_interest_for_user);
     }
 
-    //3) fallback to getUserLoggedOut
-    if (ticker_set.size == 0) {
+    // USER INDEPENDENT PERSONALIZATION
 
+    // if user hasn't any kind of information, neither from Liked Tickers nor from Redis
+    if (tickers_of_interest_for_user.size == 0) {
+
+        // add tickers based on general preferences
         let array_from_redis = await getMostSearchedTickers();
-        array_from_redis.reduce((s, e) => s.add(e), ticker_set);
+        array_from_redis.reduce((tickerSet, newTicker) => tickerSet.add(newTicker), tickers_of_interest_for_user);
 
     }
 
@@ -58,22 +72,8 @@ async function getNewsPersonalized(req, res) {
     })    
 }
 
-function isUserLogged(user) {
-
-    var logged = user == undefined ? false : true;
-    return logged;
-
-}
-
-async function getShareHolderId(mail) {
-    const share_holder = await models.share_holder.findOne({
-        where: {
-            email: mail
-        },
-        attributes: ['share_holder_id']
-    })
-
-    return share_holder.share_holder_id
+const userLogged = (user) => {
+    return (user == undefined || user == null) ? false : true;
 }
 
 function getNewsByTickerList(list_ticker) {
