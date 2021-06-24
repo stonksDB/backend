@@ -7,11 +7,10 @@ const { Op } = require('sequelize');
  */
 news.get("/", getSearchSuggestions);
 
-
 async function getSearchSuggestions(req, res) {
 
 	const searchKey = req.query.key ?? ""; // since empty string always matches as substring
-	
+
 	const RESULT_LIMIT = 3;
 
 	const byTicker = buildQueryByTicker(RESULT_LIMIT, searchKey.toUpperCase());
@@ -20,16 +19,16 @@ async function getSearchSuggestions(req, res) {
 	try {
 		const matches_ticker = await sequelize.models.stock.findAll(byTicker);
 		const matches_name = await sequelize.models.stock.findAll(byName);
-		
+
 		// merge results together
 		const result = {
-				tickers: matches_ticker,
-				names: matches_name,
+			tickers: matches_ticker,
+			names: matches_name,
 		}
 
 		return res.status(200).send(JSON.stringify(result));
 	} catch (error) {
-			return res.status(500).send(JSON.stringify(error))
+		return res.status(500).send(JSON.stringify(error))
 	}
 
 };
@@ -44,11 +43,12 @@ let buildQueryByTicker = (limit, searchKey) => {
 
 	return {
 		where: {
-			ticker: { [Op.substring]: searchKey } },
+			ticker: { [Op.substring]: searchKey }
+		},
 
-			attributes: ["name", "ticker"], // returned attributes
-			limit: limit
-    }
+		attributes: ["name", "ticker"], // returned attributes
+		limit: limit
+	}
 }
 
 /**
@@ -59,17 +59,17 @@ let buildQueryByTicker = (limit, searchKey) => {
  */
 let buildQueryByName = (limit, searchKey) => {
 
-    const query = {
-        where: {
-            [Op.and]: [
-                { name: { [Op.substring]: searchKey } }
-            ]
-        },
-        attributes: ["name", "ticker"],
-        limit: limit
-    }
+	const query = {
+		where: {
+			[Op.and]: [
+				{ name: { [Op.substring]: searchKey } }
+			]
+		},
+		attributes: ["name", "ticker"],
+		limit: limit
+	}
 
-    return query;
+	return query;
 }
 
 module.exports = news;

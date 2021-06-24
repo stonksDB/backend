@@ -5,11 +5,11 @@ const app = express()
 const routes = require('./routes')
 const bodyParser = require("body-parser")
 
-const corsOptions = {
-  origin: "*", // should be updated with the frontend URL
-  "methods": "GET,HEAD,PUT,PATCH,POST,DELETE"
-}
-app.use(cors(corsOptions));
+// const corsOptions = {
+//   origin: "*", // should be updated with the frontend URL
+//   "methods": "GET,HEAD,PUT,PATCH,POST,DELETE"
+// }
+// app.use(cors(corsOptions));
 
 // To support URL-encoded bodies
 app.use(bodyParser.urlencoded({ extended: true }));
