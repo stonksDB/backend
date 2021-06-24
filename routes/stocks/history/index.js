@@ -31,7 +31,10 @@ async function getHistoryByTicker(req, res) {
 function updateTickerCounters(user_info, ticker) {    
     updateTickerCounterGlobal(ticker)    
     // if user info available -> user logged
-    if (user_info) updateTickerCounterUser(user_info.email, ticker);
+    if (user_info) {
+        updateTickerCounterUser(user_info.email, ticker);
+    
+    }
 }
 
 module.exports = stocks;
