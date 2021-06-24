@@ -3,7 +3,6 @@ var express = require('express');
 var router = express.Router();
 
 const sequelize = require('../../../sequelize');
-const { getHistoryTicker } = require('../../utils/history_manager')
 
 /**
  * returns a JSON array [{"ticker" : {<price_values>}]

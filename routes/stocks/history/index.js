@@ -2,10 +2,10 @@ const stocks = require('express').Router();
 
 const axios = require('axios');
 
-const { updateTickerCounterGlobal } = require('../../redis/global_redis_utils')
-const { updateTickerCounterUser } = require('../../redis/user_redis_utils')
+const { updateTickerCounterGlobal } = require('../../utils/redis/global_redis_utils')
+const { updateTickerCounterUser } = require('../../utils/redis/user_redis_utils')
 
-const { getHistoryTicker } = require('../../utils/history_manager')
+const { getHistoryTicker } = require('../../utils/history/data_retriever')
 
 stocks.get("/:ticker", getHistoryByTicker);
 

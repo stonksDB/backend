@@ -1,6 +1,6 @@
 const indexes = require('express').Router();
 
-const { getHistoryTicker } = require('../../utils/history_manager')
+const { getHistoryTicker } = require('../../utils/history/data_retriever')
 const index_list_json = require('./indexes_list.json')
 
 /**

@@ -1,11 +1,11 @@
 const news = require('express').Router();
-const { models } = require('../../sequelize');
+const sequelize = require('../../sequelize');
 
 const axios = require('axios');
 const { resolve } = require('path');
 
-const { getMostSearchedTickers } = require('../redis/global_redis_utils')
-const { getUserAnalytics } = require('../redis/user_redis_utils')
+const { getMostSearchedTickers } = require('../utils/redis/global_redis_utils')
+const { getUserAnalytics } = require('../utils/redis/user_redis_utils')
 
 
 
