@@ -1,5 +1,5 @@
 const news = require('express').Router();
-const sequelize = require('../../sequelize');
+const { models } = require('../../sequelize');
 
 const axios = require('axios');
 const { resolve } = require('path');
@@ -7,9 +7,13 @@ const { resolve } = require('path');
 const { getMostSearchedTickers } = require('../utils/redis/global_redis_utils')
 const { getUserAnalytics } = require('../utils/redis/user_redis_utils')
 
+<<<<<<< HEAD
 
 
 news.get('/', getNews)
+=======
+news.get('/', getNewsPersonalized)
+>>>>>>> devel_seb
 news.get("/:ticker", getNewsByTickerRequestHandler);
 news.get("/single/:uuid", getSingleNewsByUuid);
 
@@ -41,10 +45,16 @@ async function getNews(req, res) {
             attributes: ["ticker"]
         });
 
+<<<<<<< HEAD
         likes_tuples
             .map(tuple => tuple.get("ticker")) // extract value from Sequelize Result
             // Could have been used a forEach maybe (?)
             .reduce((tickerSet, newTicker) => tickerSet.add(newTicker), tickers_of_interest_for_user); // adds each ticker to the ticker_of_interest set
+=======
+        //2) search for redis
+        let array_from_redis = await getUserAnalytics(email);           
+        array_from_redis.reduce((s, e) => s.add(e), ticker_set);
+>>>>>>> devel_seb
 
         // 2) search for redis
         let tickers_search_by_user = await getUserAnalytics(email);        
