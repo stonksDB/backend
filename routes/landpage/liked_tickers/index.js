@@ -8,7 +8,8 @@ const sequelize = require('../../../sequelize');
  liked_tickers.get('/', (req, res) => {
     const LIMIT = req.query.limit ?? 4; // 4 is default value
 
-    if (req.session.user.email) // user logged in
+    const is_user_logged = req.session.user != null || req.session.user != undefined
+    if (is_user_logged) 
         sequelize.models.like.findAll({
             where: {
                 share_holder_id: req.session.user.share_holder_id
