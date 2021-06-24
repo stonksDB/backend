@@ -1,10 +1,10 @@
 const redis = require('redis');
 const config = require('./../../../config/config.json')
 
-const USER_ANALYTICS_DB = 2;
+const USER_ANALYTICS_DB = 1;
 
 // returns a redisClient instance to interact with the database
-exports.redisClient = redis.createClient({
+redisClient = redis.createClient({
     host: config.host,
     port: 6379, // default redis port
     db: USER_ANALYTICS_DB
@@ -43,11 +43,15 @@ exports.updateTickerCounterUser = async (user, ticker) => {
 
     const mail = user;
 
-    return client.zscore(mail, ticker, (err, prevCounter) => {
+    console.log(mail)
+
+    return redisClient.zscore(mail, ticker, (err, prevCounter) => {
         if (err)
             console.error(err) // log as error priority
 
         let counter = 1;
+
+        console.log(prevCounter)
 
         if (prevCounter) { // ticker already in the set
             counter = (parseInt(prevCounter) + 1)
@@ -55,7 +59,7 @@ exports.updateTickerCounterUser = async (user, ticker) => {
 
         const filteringArgs = [mail, counter, ticker]
 
-        client.zadd(filteringArgs, (err) => {
+        redisClient.zadd(filteringArgs, (err) => {
             if (err)
                 console.error(err);
         });

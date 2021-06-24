@@ -26,7 +26,7 @@ exports.getMostSearchedTickers = () => {
  * @param {String} ticker - ticker for which to update the counter
  */
 exports.updateTickerCounterGlobal = (ticker) => {
-    return client.zscore(TICKER_COUNTERS, ticker, (err, prevCounter) => {
+    return redisClient.zscore(TICKER_COUNTERS, ticker, (err, prevCounter) => {
         if (err) 
             console.error(err) // log as error priority
 
@@ -38,7 +38,7 @@ exports.updateTickerCounterGlobal = (ticker) => {
 
         const filteringArgs = [TICKER_COUNTERS, counter, ticker]
 
-        client.zadd(filteringArgs, (err) => {
+        redisClient.zadd(filteringArgs, (err) => {
             if (err)
                 console.error(err);
         });

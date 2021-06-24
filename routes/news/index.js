@@ -1,13 +1,11 @@
 const news = require('express').Router();
-const sequelize = require('../../sequelize');
+const { models } = require('../../sequelize');
 
 const axios = require('axios');
 const { resolve } = require('path');
 
 const { getMostSearchedTickers } = require('../utils/redis/global_redis_utils')
 const { getUserAnalytics } = require('../utils/redis/user_redis_utils')
-
-
 
 news.get('/', getNewsPersonalized)
 news.get("/:ticker", getNewsByTickerRequestHandler);
@@ -35,7 +33,7 @@ async function getNewsPersonalized(req, res) {
         console.log("redis")
 
         //2) search for redis
-        let array_from_redis = await getUserAnalytics(email);        
+        let array_from_redis = await getUserAnalytics(email);           
         array_from_redis.reduce((s, e) => s.add(e), ticker_set);
 
     }
