@@ -1,41 +1,36 @@
 const indexes = require('express').Router();
 
-const sequelize = require('../../../sequelize');
 const { getHistoryTicker } = require('../../utils/history_manager')
+const index_list_json = require('./indexes_list.json')
 
 /**
- * returns the list of indexes with their data
+ * returns a JSON object in the format {'index' : '<index_prices_info>'}
  */
-indexes.get('/indexes', indexesData);
+indexes.get('/', (_, res) => {
+    // load list of indexes from support file
+    const index_list = JSON.parse(index_list_json)
 
+    // list of Promise Response returned by the 'getHistoryTicker' function
+    const pending_responses = []
 
-async function indexesData(req, res) {
-
-    let indexes = [{ ticker: "^GSPC", name: "S&P 500" }, { ticker: "^DJI", name: "Dow 30" }, { ticker: "^IXIC", name: "Nasdaq" }, { ticker: "FTSEMIB.MI", name: "FTSE MIB Index" }, { ticker: "^HSI", name: "Hang Seng Index" },  { ticker: "^XAX", name: "NYSE AMEX COMPOSITE INDEX" }]
-
-
-    const promises = []
-
-    indexes.forEach(element => {
-
-        promises.push(getHistoryTicker(element.ticker, '1d', "15m"))
-
+    indexes.forEach(index => {
+        // '1d' since index data of interest only in the last day
+        // '15m' more rare data - reduce size of response
+        pending_responses.push(getHistoryTicker(index.ticker, '1d', "15m"))
     });
 
-    Promise.all(promises).then(values => {
+    // wait until all data returned
+    Promise.all(pending_responses).then(indexes_data => {
 
         for(var i = 0; i < indexes.length; i++){
-            indexes[i]["points"] = values[i]
+            index_list[i]["points"] = indexes_data[i]
         }
 
-        res.send(indexes)
+        // returns in JSON format
+        res.statur(200).json(indexes)
 
-    }).catch(err => { 
-        console.log(err)    
-        console.log("there was an error")  
-        res.status(500).send(err)
-    })
+    }).catch(err => { return res.status(500).send(err) })
 
-}
+});
 
-module.exports = indexesData;
+module.exports = indexes;

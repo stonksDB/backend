@@ -9,10 +9,12 @@ const config = require('../../config/config.json')
 
 exports.getHistoryTicker = (ticker, period, interval) => {
 
-    if(!interval){        
+    if(!interval){      
+        // default value   
         interval = "1m"
     }    
 
+    // returns promise instance containing the price data
     return new Promise((resolve, reject) => {
 
         axios.defaults.port = 5000;
