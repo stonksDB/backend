@@ -11,7 +11,7 @@ liked_tickers.get('/', async (req, res) => {
 
     const LIMIT = req.query.limit ?? DEFAULT_LIMIT;
 
-    const byLikedStockAndShareHolderId = buildQuery(limit, req.session.user.share_holder_id)
+    const byLikedStockAndShareHolderId = buildQuery(LIMIT, req.session.user.share_holder_id)
 
     sequelize.models.like.findAll(byLikedStockAndShareHolderId).then(result => {
         res.status(200).json(result)
@@ -27,16 +27,13 @@ liked_tickers.get('/', async (req, res) => {
  * @returns 
  */
 let buildQuery = (limit, shareHolderId) => {
-
-    const query = {
+    return {
         where: {
             share_holder_id: shareHolderId
         },
         limit: limit,
         attributes: ["ticker"]
     }
-
-    return query;
 }
 
 module.exports = liked_tickers;
