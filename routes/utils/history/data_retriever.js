@@ -7,23 +7,17 @@ const config = require('../../../config/config.json')
  * @param {String} ticker - ticker for which to update the counter
  */
 
-exports.getHistoryTicker = (ticker, period, interval) => {
-
-    if(!interval){      
-        // default value   
-        interval = "1m"
-    }    
+exports.getHistoryTicker = (ticker, period = "1d", interval = "1m") => {
 
     // returns promise instance containing the price data
     return new Promise((resolve, reject) => {
 
         axios.defaults.port = 5000;
-        axios.get("http://" + config.host + ":" + 5000 + "/history/" + ticker, { params: { "period": period, "interval":interval } })
-            .then(resP => {                
-                resolve(resP.data)
+        axios.get("http://" + config.host + ":" + 5000 + "/history/" + ticker, { params: { "period": period, "interval": interval } })
+            .then(response => {
+                resolve(response.data)
             })
             .catch(error => {
-                console.log(ticker, error)
                 reject(error);
             });
     })

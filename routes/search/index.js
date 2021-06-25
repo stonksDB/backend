@@ -2,6 +2,8 @@ const news = require('express').Router();
 const sequelize = require('../../sequelize');
 const { Op } = require('sequelize');
 
+const DEFAULT_EMPTY_STRING = ""
+
 /**
  * endpoint supporting the interactive search-bar
  */
@@ -9,7 +11,7 @@ news.get("/", getSearchSuggestions);
 
 async function getSearchSuggestions(req, res) {
 
-	const searchKey = req.query.key ?? ""; // since empty string always matches as substring
+	const searchKey = req.query.key ?? DEFAULT_EMPTY_STRING;
 
 	const RESULT_LIMIT = 3;
 
@@ -26,9 +28,10 @@ async function getSearchSuggestions(req, res) {
 			names: matches_name,
 		}
 
-		return res.status(200).send(JSON.stringify(result));
+		return res.status(200).json(result);
+
 	} catch (error) {
-		return res.status(500).send(JSON.stringify(error))
+		return res.status(500).json(error);
 	}
 
 };
@@ -41,7 +44,7 @@ async function getSearchSuggestions(req, res) {
  */
 let buildQueryByTicker = (limit, searchKey) => {
 
-	return {
+	const query = {
 		where: {
 			ticker: { [Op.substring]: searchKey }
 		},
@@ -49,6 +52,8 @@ let buildQueryByTicker = (limit, searchKey) => {
 		attributes: ["name", "ticker"], // returned attributes
 		limit: limit
 	}
+
+	return query;
 }
 
 /**

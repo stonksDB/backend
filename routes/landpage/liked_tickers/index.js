@@ -2,33 +2,41 @@ const liked_tickers = require('express').Router();
 
 const sequelize = require('../../../sequelize');
 
+const DEFAULT_LIMIT = 4
+
 /**
  * returns a JSON array [{"ticker" : {<price_values>}]
  */
- liked_tickers.get('/', (req, res) => {
-    const LIMIT = req.query.limit ?? 4; // 4 is default value
+liked_tickers.get('/', async (req, res) => {
 
-    const is_user_logged = req.session.user != null || req.session.user != undefined
-    if (is_user_logged) 
-        sequelize.models.like.findAll({
-            where: {
-                share_holder_id: req.session.user.share_holder_id
-            },
-            limit: LIMIT,
-            attributes: ["ticker"]
-        }).then(result => { 
-            //res.status(200).send(JSON.stringify(toArray('ticker', result)))
-            res.status(200).send(JSON.stringify(result))
-        })
-        .catch(err => { res.status(400).send(JSON.stringify(err))})
-    else
-        // unauthorized
-        res.sendStatus(400);
+    const LIMIT = req.query.limit ?? DEFAULT_LIMIT;
+
+    const byLikedStockAndShareHolderId = buildQuery(limit, req.session.user.share_holder_id)
+
+    sequelize.models.like.findAll(byLikedStockAndShareHolderId).then(result => {
+        res.status(200).json(result)
+    })
+        .catch(err => { res.status(400).send(JSON.stringify(err)) })
+
 });
 
-// transforms the db result into array - given the attribute to be selected
-const toArray = (attr, dbResult) => {
-    return dbResult.map(dbRow => dbRow.get(attr))
+/**
+ * 
+ * @param {String} shareHolderId the ID of the shareholder we would like to search
+ * @param {Integer} limit number of matching company names returned
+ * @returns 
+ */
+let buildQuery = (limit, shareHolderId) => {
+
+    const query = {
+        where: {
+            share_holder_id: shareHolderId
+        },
+        limit: limit,
+        attributes: ["ticker"]
+    }
+
+    return query;
 }
 
 module.exports = liked_tickers;
