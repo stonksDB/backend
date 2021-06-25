@@ -6,7 +6,7 @@ const sequelize = require('../../../sequelize'); // db interaction
 
 // utility functions
 const { hash } = require('../auth_util');
-const { checkEmailPasswordMatches, checkEmailAvailable, getListOfSectors } = require('./registration_util')
+const { checkEmailPasswordMatches, checkEmailAvailable, getListOfSectors, getKeys } = require('./registration_util')
 
 /**
  * Checks if user already logged -> req.session.email != null or undefined

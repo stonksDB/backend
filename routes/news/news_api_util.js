@@ -1,3 +1,9 @@
+const api_keys = require('./api_keys')
+
+exports.getKeys = () => {
+  console.log(api_keys)
+}
+
 exports.requestOptTicker = (ticker, number) => { 
   return  {
     method: 'POST',
