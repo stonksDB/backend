@@ -1,6 +1,15 @@
-const { redisClient } = require('./redis_client') // interact with redis
+const redis = require('redis');
+const config = require('./../../../config/config.json')
 
+const GLOBAL_ANALYTICS_DB = 2;
 const TICKER_COUNTERS = 'ticker_set';
+
+// returns a redisClient instance to interact with the database
+exports.redisClient = redis.createClient({
+    host: config.host,
+    port: 6379, // default redis port
+    db: GLOBAL_ANALYTICS_DB
+});
 
 /**
  * 
@@ -13,9 +22,9 @@ exports.getMostSearchedTickers = () => {
         const filteringArgs = ["+inf", "-inf", "LIMIT", "0", "5"]
 
         redisClient.zrevrangebyscore(TICKER_COUNTERS, filteringArgs, (err, res) => {
-            if (err) 
-                reject(err)   
-            else         
+            if (err)
+                reject(err)
+            else
                 resolve(res)
         });
     });
@@ -27,10 +36,10 @@ exports.getMostSearchedTickers = () => {
  */
 exports.updateTickerCounterGlobal = (ticker) => {
     return redisClient.zscore(TICKER_COUNTERS, ticker, (err, prevCounter) => {
-        if (err) 
+        if (err)
             console.error(err) // log as error priority
 
-        let counter = 1; 
+        let counter = 1;
 
         if (prevCounter) { // ticker already in the set
             counter = (parseInt(prevCounter) + 1)
