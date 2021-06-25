@@ -59,7 +59,7 @@ exports.removePassword = (sequelize_instance) => {
   const share_holder_json = JSON.stringify(sequelize_instance);
   const share_holder_dict = JSON.parse(share_holder_json);
 
-  //remove passowrd property
+  //remove password property
   delete share_holder_dict.password;
   delete share_holder_dict.additionalField;
 
