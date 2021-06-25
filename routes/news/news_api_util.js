@@ -5,8 +5,9 @@ const randomIndex = (max) => {
 }
 
 exports.getRandomKey = () => { 
-  const ix = randomIndex(2)
-  return api_keys[randomIndex(2)];
+  const available_keys = api_keys.length
+  const ix = randomIndex(available_keys)
+  return api_keys[randomIndex(available_keys)];
 }
 
 exports.requestOptTicker = (ticker, number) => { 
