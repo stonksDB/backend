@@ -5,7 +5,7 @@ const axios = require('axios');
 
 const { getMostSearchedTickers } = require('../utils/redis/global_redis_utils')
 const { getUserAnalytics } = require('../utils/redis/user_redis_utils');
-const { requestOptTicker, requestOptUuid } = require('./news_api_util')
+const { requestOptTicker, requestOptUuid, getRandomKey } = require('./news_api_util')
 
 let userLogged = (user) => {
     return (user == undefined || user == null) ? false : true;
@@ -181,5 +181,7 @@ news.get("/:ticker", getNewsByTickerRequestHandler);
  * returns a precise news (?) identified by the uuid code
  */
 news.get("/single/:uuid", getSingleNewsByUuid());
+
+
 
 module.exports = news;

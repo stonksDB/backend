@@ -1,7 +1,12 @@
 const api_keys = require('./api_keys')
 
-exports.getKeys = () => {
-  console.log(api_keys)
+const randomIndex = (max) => {
+  return Math.floor(Math.random() * max);
+}
+
+exports.getRandomKey = () => { 
+  const ix = randomIndex(2)
+  return api_keys[randomIndex(2)];
 }
 
 exports.requestOptTicker = (ticker, number) => { 
@@ -11,7 +16,7 @@ exports.requestOptTicker = (ticker, number) => {
     params: { s: ticker, region: 'IT', snippetCount: number },
     headers: {
         'content-type': 'text/plain',
-        'x-rapidapi-key': '7c3ccbf7ccmsh1195eaa304e9cb0p15ee6fjsn7998087d2742',
+        'x-rapidapi-key': this.getRandomKey(),
         'x-rapidapi-host': 'apidojo-yahoo-finance-v1.p.rapidapi.com'
     },
   };
@@ -23,7 +28,7 @@ exports.requestOptUuid = (uuid) => {
     url: 'https://apidojo-yahoo-finance-v1.p.rapidapi.com/news/v2/get-details',
     params: { uuid: uuid, region: 'IT' },
     headers: {
-        'x-rapidapi-key': '7c3ccbf7ccmsh1195eaa304e9cb0p15ee6fjsn7998087d2742',
+        'x-rapidapi-key': this.getRandomKey(),
         'x-rapidapi-host': 'apidojo-yahoo-finance-v1.p.rapidapi.com'
     }
   };
