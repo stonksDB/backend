@@ -5,15 +5,15 @@ const validateSchema = require('../../../validation') // schema validation
 const sequelize = require('../../../sequelize'); // db interaction 
 
 // utility functions
-const { hash } = require('../auth_util'); 
+const { hash } = require('../auth_util');
 const { next_id_available, checkEmailPasswordMatches, checkEmailAvailable, getListOfSectors } = require('./registration_util')
 
 /**
  * Checks if user already logged -> req.session.email != null or undefined
  */
-register.use(function(req, res, next) {
+register.use(function (req, res, next) {
   const { email } = req.body;
-  if(req.session.user)
+  if (req.session.user)
     return res.status(401).send(`Log out before to register a new account. \nYour current email is ${email}`);
   next();
 });
@@ -27,19 +27,19 @@ register.use(function(req, res, next) {
 let follow_tuples_array = (body, share_holder_id) => {
   const { follows } = body
 
-  const filtered = follows.filter((val) => val >= 0 & val<= 14)
+  const filtered = follows.filter((val) => val >= 0 & val <= 14)
 
   let id_set = new Set(filtered); // remove duplicates
-  
+
   // create list of follow instances
   const follow_tuples = []
-  id_set.forEach((sector_id)=> follow_tuples.push(
+  id_set.forEach((sector_id) => follow_tuples.push(
     {
       share_holder_id: share_holder_id,
       sector_id: sector_id
     }
   ));
-  
+
   return follow_tuples;
 }
 
@@ -49,20 +49,19 @@ let follow_tuples_array = (body, share_holder_id) => {
  * @param {Integer} nextIndex next index for the nex user
  * @returns 
  */
- let share_holder_data = (body, nextIndex) => {
-   const { firstName, lastName, dob, country, email, password } = body;
-   const hashedPassword = hash(password)
-   
-   const dict = {
-    share_holder_id: nextIndex,
+let share_holder_data = (body) => {
+  const { firstName, lastName, dob, country, email, password } = body;
+  const hashedPassword = hash(password)
+
+  const dict = {
     first_name: firstName,
     last_name: lastName,
     dob: dob,
-    country: country, 
+    country: country,
     email: email,
     password: hashedPassword
   };
-  
+
   dict.additionalField = 0;
   return dict;
 }
@@ -73,31 +72,30 @@ let follow_tuples_array = (body, share_holder_id) => {
  * Add new user 
  * @returns 400 - Internal Server Error during the db update
  */
- let registerNewUser = () => {
-  return (req, res, next) =>  {
-      sequelize.transaction(async (t) => {
+let registerNewUser = () => {
+  return (req, res, next) => {
+    
+    sequelize.transaction(async (t) => {
 
-        // collect and organize info to be stored
-        const next_share_holder_id = await next_id_available();
-        
-        req.locals = {};
-        // attach data to req obj - will be available for subsequent middlewares
-        req.locals.share_holder_obj = share_holder_data(req.body, next_share_holder_id);
-        req.locals.follow_data = follow_tuples_array(req.body,next_share_holder_id);
-        
-        // save info to db
-        await sequelize.models.share_holder.create(
-          req.locals.share_holder_obj,
-          {transaction: t}
-        );
-        
-        await sequelize.models.follow.bulkCreate(
-          req.locals.follow_data,
-          {transaction: t}
-        );
-      }).
+      req.locals = {};
+      // attach data to req obj - will be available for subsequent middlewares
+      req.locals.share_holder_obj = share_holder_data(req.body);      
+      
+      const newShareHolder = await sequelize.models.share_holder.create(
+        req.locals.share_holder_obj,
+        { transaction: t }
+      );      
+
+      //add new id just created
+      req.locals.follow_data = follow_tuples_array(req.body, newShareHolder.dataValues.share_holder_id);
+
+      await sequelize.models.follow.bulkCreate(
+        req.locals.follow_data,
+        {transaction: t}
+      );
+    }).
       then(_ => { next(); }) // invoked if no error while updating the db
-      .catch(_ => { return res.status(500).send('Error on database update!') }); // if error on updating db
+      .catch(err => { console.log(err); return res.status(500).send('Error on database update!') }); // if error on updating db
   }
 }
 
@@ -108,7 +106,7 @@ let follow_tuples_array = (body, share_holder_id) => {
 let regenerateCookie = () => {
   return (req, res, next) => {
     const { email } = req.body;
-    
+
     // add user info to the session 
     req.session.user = {}
     req.session.user.email = email;
@@ -125,11 +123,11 @@ let regenerateCookie = () => {
 let returnUserInfo = () => {
   return (req, res) => {
     const userInfo = {}
-    userInfo.share_holder_info = req.locals.share_holder_obj; 
+    userInfo.share_holder_info = req.locals.share_holder_obj;
     // remove sensible information
     delete userInfo.share_holder_info.password;
     delete userInfo.share_holder_info.additionalField;
-    
+
     userInfo.follows = getListOfSectors(req.locals.follow_data); // from tuples [<id>:<sector>] extract [<sector>] - sectors filtered since are those inserted in the db
     userInfo.likes = []; // empty since no likes by default provided
 
@@ -140,7 +138,7 @@ let returnUserInfo = () => {
 /**
  * registration end point
  */
-register.post("/" 
+register.post("/"
   , validateSchema("registration-user")
   , checkEmailPasswordMatches()
   , checkEmailAvailable()
