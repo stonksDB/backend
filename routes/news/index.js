@@ -36,6 +36,7 @@ let userLogged = (user) => {
  */
 let personalizeResponse = () => {
     return async (req, res, next) => {
+
         // USER DEPENDENT PERSONALIZATION
         const tickers_of_interest_for_user = new Set()
 
@@ -80,9 +81,6 @@ let personalizeResponse = () => {
     }
 }
 
-
-
-
 function getNewsByTickerList(list_ticker) {
     // promise prototype
     return new Promise((resolve, reject) => {
@@ -122,6 +120,7 @@ async function getNewsByTicker(ticker, number) {
 
             apiResponse.data.data.main.stream.forEach(newsInfo => {
                 const newsObj = {
+                    "ticker": ticker,
                     "uuid": newsInfo.id,
                     "title": newsInfo.content.title,
                     "img": newsInfo.content.thumbnail.resolutions[0] ?? "",
