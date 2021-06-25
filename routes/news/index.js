@@ -2,11 +2,9 @@ const news = require('express').Router();
 const sequelize = require('../../sequelize');
 
 const axios = require('axios');
-const { resolve } = require('path');
 
 const { getMostSearchedTickers } = require('../utils/redis/global_redis_utils')
 const { getUserAnalytics } = require('../utils/redis/user_redis_utils');
-const { nextTick } = require('process');
 
 let userLogged = (user) => {
     return (user == undefined || user == null) ? false : true;
@@ -86,69 +84,62 @@ let personalizeResponse = () => {
 
 
 function getNewsByTickerList(list_ticker) {
+    // promise prototype
+    return new Promise((resolve, reject) => {
 
-    return new Promise((resolve) => {
+        const promisedNews = []
 
-        let promisesList = []
-
-        let newsList = []
-
-        let number_of_tickers = parseInt(10 / list_ticker.length)
+        const news_per_ticker = parseInt(10 / list_ticker.length)
 
         list_ticker.forEach(ticker => {
-
-            let news_ticker = getNewsByTicker(ticker, number_of_tickers);
-            promisesList.push(news_ticker);
-
+            const news_ticker = getNewsByTicker(ticker, news_per_ticker);
+            promisedNews.push(news_ticker);
         });
 
-        Promise.all(promisesList).then(news => {
+        Promise.all(promisedNews).then(news => {
+            // extract subarrays - create single array of elements
             news = Array.prototype.concat.apply([], news);
             resolve(news)
-        })
-    })
-
+        }).catch(_ => { 
+            reject(news) 
+        });
+    });
 }
 
+/**
+ * 
+ * @param {String} ticker - ticker to which news are related
+ * @param {Integer} number - number of news to be retrieved
+ * @returns {[Promise]} - array of promised news about the ticker 
+ */
 async function getNewsByTicker(ticker, number) {
 
     return new Promise((resolve, reject) => {
 
-        var options = {
-            method: 'POST',
-            url: 'https://apidojo-yahoo-finance-v1.p.rapidapi.com/news/v2/list',
-            params: { s: ticker, region: 'IT', snippetCount: number },
-            headers: {
-                'content-type': 'text/plain',
-                'x-rapidapi-key': 'Dzzd2zsPGXmshEw7W0fIiNYZklJZp1ebqsmjsnrFbX2oNhRmND',
-                'x-rapidapi-host': 'apidojo-yahoo-finance-v1.p.rapidapi.com'
-            },
-        };
+        axios.request(requestOptTicker(ticker, number)).then(function (apiResponse) {
 
-        axios.request(options).then(function (response) {
+            const retrievedNews = []
 
-            let results = []
-
-            response.data.data.main.stream.forEach(element => {
-                const smallElem = {
-                    "uuid": element.id,
-                    "title": element.content.title,
-                    "img": element.content.thumbnail.resolutions[0] ?? "",
-                    "published_at": element.content.pubDate,
-                    "provider": element.content.provider.displayName
+            apiResponse.data.data.main.stream.forEach(newsInfo => {
+                const newsObj = {
+                    "uuid": newsInfo.id,
+                    "title": newsInfo.content.title,
+                    "img": newsInfo.content.thumbnail.resolutions[0] ?? "",
+                    "published_at": newsInfo.content.pubDate,
+                    "provider": newsInfo.content.provider.displayName
                 }
 
-                results.push(smallElem)
+                retrievedNews.push(newsObj)
             });
 
-            resolve(results);
+            resolve(retrievedNews);
 
         }).catch(function (error) {
             reject(error);
+            // propagate error up - so to inform parent
+            throw error
         });
-
-    })
-
+    });
 };
 
 async function getNewsByTickerRequestHandler(req, res) {
@@ -162,27 +153,19 @@ async function getNewsByTickerRequestHandler(req, res) {
 
 }
 
-async function getSingleNewsByUuid(req, res) {
+const getSingleNewsByUuid = () => { 
+    return (req, res) => {
 
+    // unique identifier for the news
     const uuid = req.params.uuid;
 
-    var options = {
-        method: 'GET',
-        url: 'https://apidojo-yahoo-finance-v1.p.rapidapi.com/news/v2/get-details',
-        params: { uuid: uuid, region: 'IT' },
-        headers: {
-            'x-rapidapi-key': 'Dzzd2zsPGXmshEw7W0fIiNYZklJZp1ebqsmjsnrFbX2oNhRmND',
-            'x-rapidapi-host': 'apidojo-yahoo-finance-v1.p.rapidapi.com'
-        }
-    };
-
-    axios.request(options).then(function (response) {
-        res.send(response.data)
+    axios.request(requestOptUuid(uuid)).then(function (apiResponse) {
+        return res.status(200).jsonsend(apiResponse.data)
     }).catch(function (error) {
-        res.send(error)
+        return res.status(400).send(error)
     });
-
-};
+    };
+}
 
 /**
  * returns personalized news based on user preferred tickers
