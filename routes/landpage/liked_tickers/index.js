@@ -17,7 +17,7 @@ liked_tickers.get('/', async (req, res) => {
         const tickerArray = []
         // toArray
         result.forEach(tickerObj => tickerArray.push(tickerObj['ticker']))
-        res.status(200).json(result)
+        res.status(200).json(tickerArray)
     })
         .catch(err => { res.status(400).send(JSON.stringify(err)) })
 
