@@ -5,7 +5,7 @@ exports.requestOptTicker = (ticker, number) => {
     params: { s: ticker, region: 'IT', snippetCount: number },
     headers: {
         'content-type': 'text/plain',
-        'x-rapidapi-key': 'Dzzd2zsPGXmshEw7W0fIiNYZklJZp1ebqsmjsnrFbX2oNhRmND',
+        'x-rapidapi-key': '7c3ccbf7ccmsh1195eaa304e9cb0p15ee6fjsn7998087d2742',
         'x-rapidapi-host': 'apidojo-yahoo-finance-v1.p.rapidapi.com'
     },
   };
@@ -17,7 +17,7 @@ exports.requestOptUuid = (uuid) => {
     url: 'https://apidojo-yahoo-finance-v1.p.rapidapi.com/news/v2/get-details',
     params: { uuid: uuid, region: 'IT' },
     headers: {
-        'x-rapidapi-key': 'Dzzd2zsPGXmshEw7W0fIiNYZklJZp1ebqsmjsnrFbX2oNhRmND',
+        'x-rapidapi-key': '7c3ccbf7ccmsh1195eaa304e9cb0p15ee6fjsn7998087d2742',
         'x-rapidapi-host': 'apidojo-yahoo-finance-v1.p.rapidapi.com'
     }
   };

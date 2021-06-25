@@ -6,15 +6,14 @@ const sequelize = require('../../../sequelize'); // db interaction
 
 // utility functions
 const { hash } = require('../auth_util');
-const { next_id_available, checkEmailPasswordMatches, checkEmailAvailable, getListOfSectors } = require('./registration_util')
+const { checkEmailPasswordMatches, checkEmailAvailable, getListOfSectors } = require('./registration_util')
 
 /**
  * Checks if user already logged -> req.session.email != null or undefined
  */
 register.use(function (req, res, next) {
-  const { email } = req.body;
   if (req.session.user)
-    return res.status(401).send(`Log out before to register a new account. \nYour current email is ${email}`);
+    return res.status(401).send(`Log out before to register a new account. \nYour current email is ${req.session.user.email}`);
   next();
 });
 
@@ -78,13 +77,17 @@ let registerNewUser = () => {
     sequelize.transaction(async (t) => {
 
       req.locals = {};
+
       // attach data to req obj - will be available for subsequent middlewares
       req.locals.share_holder_obj = share_holder_data(req.body);      
       
       const newShareHolder = await sequelize.models.share_holder.create(
         req.locals.share_holder_obj,
         { transaction: t }
-      );      
+      );
+
+      // add to locals the share_holder_id
+      req.locals.share_holder_obj.share_holder_id = newShareHolder.dataValues.share_holder_id;
 
       //add new id just created
       req.locals.follow_data = follow_tuples_array(req.body, newShareHolder.dataValues.share_holder_id);
@@ -104,7 +107,7 @@ let registerNewUser = () => {
  * @returns 200 OK - successfully updated the user session
  */
 let regenerateCookie = () => {
-  return (req, res, next) => {
+  return (req, _, next) => {
     const { email } = req.body;
 
     // add user info to the session 
