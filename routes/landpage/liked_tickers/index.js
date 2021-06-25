@@ -14,6 +14,9 @@ liked_tickers.get('/', async (req, res) => {
     const byLikedStockAndShareHolderId = buildQuery(LIMIT, req.session.user.share_holder_id)
 
     sequelize.models.like.findAll(byLikedStockAndShareHolderId).then(result => {
+        const tickerArray = []
+        // toArray
+        result.forEach(tickerObj => tickerArray.push(tickerObj['ticker']))
         res.status(200).json(result)
     })
         .catch(err => { res.status(400).send(JSON.stringify(err)) })
