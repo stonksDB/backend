@@ -1,1 +1,26 @@
-[{"ticker":"^GSPC","name":"S&P 500"},{"ticker":"^DJI","name":"Dow 30"},{"ticker":"^IXIC","name":"Nasdaq"},{"ticker":"FTSEMIB.MI","name":"FTSE MIB Index"},{"ticker":"^HSI","name":"Hang Seng Index"},{"ticker":"^XAX","name":"NYSE AMEX COMPOSITE INDEX"}]
+[
+    {
+        "ticker": "^GSPC",
+        "name": "S&P 500"
+    },
+    {
+        "ticker": "^DJI",
+        "name": "Dow 30"
+    },
+    {
+        "ticker": "^IXIC",
+        "name": "Nasdaq"
+    },
+    {
+        "ticker": "FTSEMIB.MI",
+        "name": "FTSE MIB Index"
+    },
+    {
+        "ticker": "^HSI",
+        "name": "Hang Seng Index"
+    },
+    {
+        "ticker": "^XAX",
+        "name": "NYSE AMEX COMPOSITE INDEX"
+    }
+]
