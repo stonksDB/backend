@@ -34,6 +34,10 @@ module.exports = (sequelize) => {
         },
         industry_id: {
             type: DataTypes.INTEGER
+        },
+        currenct: {
+            type: DataTypes.STRING(7),
+            allowNull: false
         }        
     }, {
         tableName:"companies"
