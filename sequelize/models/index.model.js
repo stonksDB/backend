@@ -2,7 +2,7 @@ const { DataTypes } = require('sequelize');
 
 module.exports = (sequelize) => {
 
-    sequelize.define('stock', {
+    sequelize.define('index', {
 
         ticker: {
             type: DataTypes.STRING(8),
@@ -17,33 +17,21 @@ module.exports = (sequelize) => {
             type: DataTypes.STRING(7),
             allowNull: false
         },
+        name: {
+            type: DataTypes.STRING(80)
+        },
+        type: {
+            type: DataTypes.STRING(50)
+        },
         regular_market_price: {
             type: DataTypes.DOUBLE,
             allowNull: true
         },
-        figi: {
-            type: DataTypes.STRING(12)
-        }, 
-        name: {
-            type: DataTypes.STRING(80)
+        volume: {
+            type: DataTypes.DOUBLE,
         },
         market_cap: {
             type: DataTypes.INTEGER
-        },
-        logo_url: {
-            type: DataTypes.STRING(200)
-        },
-        city: {
-            type: DataTypes.STRING(50)
-        },
-        industry_id: {
-            type: DataTypes.INTEGER
-        },
-        website: {
-            type: DataTypes.STRING(200)
-        },
-        phone: {
-            type: DataTypes.STRING(25)
         },
         price_last_update: {
             type: DataTypes.STRING(25),
@@ -56,6 +44,6 @@ module.exports = (sequelize) => {
             defaultValue: 1.0
         }
     }, {
-        tableName: "stocks"
+        tableName:"indexes"
     })
 }

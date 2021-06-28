@@ -1,26 +1,32 @@
 [
     {
         "ticker": "^GSPC",
-        "name": "S&P 500"
+        "name": "S&P 500",
+        "price":"100"
     },
     {
         "ticker": "^DJI",
-        "name": "Dow 30"
+        "name": "Dow 30",
+        "price":"100"
     },
     {
         "ticker": "^IXIC",
-        "name": "Nasdaq"
+        "name": "Nasdaq",
+        "price":"100"
     },
     {
         "ticker": "FTSEMIB.MI",
-        "name": "FTSE MIB Index"
+        "name": "FTSE MIB Index",
+        "price":"5000"
     },
     {
         "ticker": "^HSI",
-        "name": "Hang Seng Index"
+        "name": "Hang Seng Index",
+        "price":"200"        
     },
     {
         "ticker": "^XAX",
-        "name": "NYSE AMEX COMPOSITE INDEX"
+        "name": "NYSE AMEX COMPOSITE INDEX",
+        "price":"200"        
     }
 ]
