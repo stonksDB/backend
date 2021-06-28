@@ -35,7 +35,7 @@ module.exports = (sequelize) => {
         industry_id: {
             type: DataTypes.INTEGER
         },
-        currenct: {
+        currency: {
             type: DataTypes.STRING(7),
             allowNull: false
         }        
