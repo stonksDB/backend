@@ -2,7 +2,7 @@ const { DataTypes } = require('sequelize');
 
 module.exports = (sequelize) => {
 
-    sequelize.define('stock', {
+    sequelize.define('index', {
 
         ticker: {
             type: DataTypes.STRING(8),
@@ -44,6 +44,6 @@ module.exports = (sequelize) => {
             defaultValue: 1.0
         }
     }, {
-        tableName:"stocks"
+        tableName:"indexes"
     })
 }
