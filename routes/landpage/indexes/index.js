@@ -17,9 +17,10 @@ indexes.get('/', (_, res) => {
         pending_responses.push(getHistoryTicker(index.ticker, '1d', "15m"))
     });
     
-    Promise.all(pending_responses).then(indexes_data => {        
+    Promise.all(pending_responses).then(indexes_data => {   
+            
 
-        for(var i = 0; i < indexes.length; i++){
+        for(var i = 0; i < index_list_json.length; i++){            
             index_list_json[i]["points"] = indexes_data[i]
         }
         
