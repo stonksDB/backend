@@ -30,27 +30,12 @@ indexes.get('/', (_, res) => {
 
 });
 
-indexes.get("/index_price/:ticker", (req, res) => {
-    const ticker = req.params.ticker
-    if(ticker)
-        return getHistoryByTicker(ticker).then(result => { return res.status(200).json(result) })
-            .catch(err => { return res.status(200).json(err); })
-    else
-        return res.sendStatus(400);
-});
-
-/*
 async function getHistoryByTicker(req, res) {
 
     const ticker = req.params.ticker;
     const period = req.query.period ?? '1d'
-    // user must explicitly states that he doesn't want the analytics on
-    const analytics_should_be_updated = req.query.update_analytics ?? true
 
     getHistoryTicker(ticker, period).then(result => {
-
-        if (analytics_should_be_updated)
-            updateTickerCounters(req.session.user, ticker)        
 
         res.status(200).send(JSON.stringify(result))
 
@@ -58,6 +43,7 @@ async function getHistoryByTicker(req, res) {
         res.status(500).send(err)
     })
 };
-*/
+
+indexes.get("/index_price/:ticker", getHistoryByTicker);
 
 module.exports = indexes;
