@@ -26,8 +26,10 @@ exports.getUserAnalytics = async (user) => {
         redisClient.zrevrangebyscore(email, filteringArgs, (err, res) => {
             if (err)
                 reject(err)
-            else
+            else {
+                console.log(res)
                 resolve(res)
+            }
         });
     });
 

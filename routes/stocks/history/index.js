@@ -33,7 +33,6 @@ function updateTickerCounters(user_info, ticker) {
     // if user info available -> user logged
     if (user_info) {
         updateTickerCounterUser(user_info.email, ticker);
-    
     }
 }
 
