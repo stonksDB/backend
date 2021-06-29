@@ -14,7 +14,7 @@ async function getHistoryByTicker(req, res) {
     const ticker = req.params.ticker;
     const period = req.query.period ?? '1d'
     // user must explicitly states that he doesn't want the analytics on
-    const analytics_should_be_updated = req.query.update_analytics ?? true
+    const analytics_should_be_updated = req.query.update_analytics == 'true'
 
     getHistoryTicker(ticker, period).then(result => {
 
@@ -33,7 +33,6 @@ function updateTickerCounters(user_info, ticker) {
     // if user info available -> user logged
     if (user_info) {
         updateTickerCounterUser(user_info.email, ticker);
-    
     }
 }
 

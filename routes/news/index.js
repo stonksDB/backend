@@ -16,10 +16,10 @@ let userLogged = (user) => {
  * @param {Response} res 
  * @returns 
  */
- let returnNews = () => {
-    return (req, res) => { 
+let returnNews = () => {
+    return (req, res) => {
         getNewsByTickerList(req.locals.tickers_of_interest_for_user).then(news => { res.status(200).json(news); })
-            .catch(err => { res.status(500).json(err) })    
+            .catch(err => { res.status(500).json(err) })
     }
 }
 
@@ -40,7 +40,7 @@ let personalizeResponse = () => {
         // USER DEPENDENT PERSONALIZATION
         const tickers_of_interest_for_user = new Set()
 
-        if (userLogged(req.session.user)) {        
+        if (userLogged(req.session.user)) {
             const email = req.session.user.email;
             const share_holder_id = req.session.user.share_holder_id;
 
@@ -56,27 +56,45 @@ let personalizeResponse = () => {
                 .map(tuple => tuple.get("ticker")) // extract value from Sequelize Result
                 // Could have been used a forEach maybe (?)
                 .reduce((tickerSet, newTicker) => tickerSet.add(newTicker), tickers_of_interest_for_user); // adds each ticker to the ticker_of_interest set
-                
-            
+
+            console.log("interests", tickers_of_interest_for_user)
+
             // 2) search for redis
-            const tickers_search_by_user = await getUserAnalytics(email);
-            tickers_search_by_user.reduce((tickerSet, newTicker) => tickerSet.add(newTicker), tickers_of_interest_for_user);
-            
+            try {
+                const tickers_search_by_user = await getUserAnalytics(email);
+                tickers_search_by_user.reduce((tickerSet, newTicker) => tickerSet.add(newTicker), tickers_of_interest_for_user);
+            } catch (error) {
+                console.log(error)
+            }
+
+            console.log("interests", tickers_of_interest_for_user)
+
         }
 
         // USER INDEPENDENT PERSONALIZATION - IF USER NOT LOGGED OR NO CUSTOM INFORMATION AVAILABLE
 
+
         // if user hasn't any kind of information, neither from Liked Tickers nor from Redis
-        if (tickers_of_interest_for_user.size == 0) {
+        if (tickers_of_interest_for_user.size < 5) {
+
+            const difference = 5 - tickers_of_interest_for_user.size
 
             // add tickers based on general preferences
-            const array_from_redis = await getMostSearchedTickers();
-            array_from_redis.reduce((tickerSet, newTicker) => tickerSet.add(newTicker), tickers_of_interest_for_user);
+            try {
+                const array_from_redis = await getMostSearchedTickers(difference);
+                array_from_redis.reduce((tickerSet, newTicker) => tickerSet.add(newTicker), tickers_of_interest_for_user);
+            }
+            catch (error) {
+                console.log(error)
+            }
 
         }
+
+        console.log(tickers_of_interest_for_user)
+
         // store in req object the user personalization
         req.locals = {}
-        req.locals.tickers_of_interest_for_user = Array.from(tickers_of_interest_for_user)    
+        req.locals.tickers_of_interest_for_user = Array.from(tickers_of_interest_for_user)
         next();
     }
 }
@@ -98,8 +116,8 @@ function getNewsByTickerList(list_ticker) {
             // extract subarrays - create single array of elements
             news = Array.prototype.concat.apply([], news);
             resolve(news)
-        }).catch(_ => { 
-            reject(news) 
+        }).catch(_ => {
+            reject(news)
         });
     });
 }
@@ -152,14 +170,14 @@ async function getNewsByTickerRequestHandler(req, res) {
 
 }
 
-const getSingleNewsByUuid = () => { 
+const getSingleNewsByUuid = () => {
     return (req, res) => {
 
-    // unique identifier for the news
-    const uuid = req.params.uuid;
+        // unique identifier for the news
+        const uuid = req.params.uuid;
 
-    axios.request(requestOptUuid(uuid)).then(function (apiResponse) {
-        return res.status(200).json(apiResponse.data)
+        axios.request(requestOptUuid(uuid)).then(function (apiResponse) {
+            return res.status(200).json(apiResponse.data)
         }).catch(function (error) {
             res.send(error)
         });
