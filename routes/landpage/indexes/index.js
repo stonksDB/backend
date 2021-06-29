@@ -52,7 +52,6 @@ indexes.get("/index_price/:ticker", (req, res) => {
     if (ticker == "")
       return res.sendStatus(400)
     
-    console.log(sequelize.models)
     // through sequelize get ticker, price and last_update values
     sequelize.models.index.findOne({
       where: {
