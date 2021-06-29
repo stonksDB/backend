@@ -1,5 +1,6 @@
 const { DataTypes } = require('sequelize');
 
+// share_holder_model
 module.exports = (sequelize) => {
 
     sequelize.define('share_holder', {
