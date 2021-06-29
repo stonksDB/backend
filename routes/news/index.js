@@ -60,11 +60,14 @@ let personalizeResponse = () => {
             console.log("interests", tickers_of_interest_for_user)
 
             // 2) search for redis
-            const tickers_search_by_user = await getUserAnalytics(email);
-            tickers_search_by_user.reduce((tickerSet, newTicker) => tickerSet.add(newTicker), tickers_of_interest_for_user);
+            try {
+                const tickers_search_by_user = await getUserAnalytics(email);
+                tickers_search_by_user.reduce((tickerSet, newTicker) => tickerSet.add(newTicker), tickers_of_interest_for_user);
+            } catch (error) {
+                console.log(error)
+            }
 
             console.log("interests", tickers_of_interest_for_user)
-
 
         }
 
@@ -72,13 +75,23 @@ let personalizeResponse = () => {
 
 
         // if user hasn't any kind of information, neither from Liked Tickers nor from Redis
-        if (tickers_of_interest_for_user.size == 0) {
+        if (tickers_of_interest_for_user.size < 5) {
+
+            const difference = 5 - tickers_of_interest_for_user.size
 
             // add tickers based on general preferences
-            const array_from_redis = await getMostSearchedTickers();
-            array_from_redis.reduce((tickerSet, newTicker) => tickerSet.add(newTicker), tickers_of_interest_for_user);
+            try {
+                const array_from_redis = await getMostSearchedTickers(difference);
+                array_from_redis.reduce((tickerSet, newTicker) => tickerSet.add(newTicker), tickers_of_interest_for_user);
+            }
+            catch (error) {
+                console.log(error)
+            }
 
         }
+
+        console.log(tickers_of_interest_for_user)
+
         // store in req object the user personalization
         req.locals = {}
         req.locals.tickers_of_interest_for_user = Array.from(tickers_of_interest_for_user)

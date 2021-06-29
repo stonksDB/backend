@@ -4,7 +4,7 @@ const config = require('./../../../config/config.json')
 const USER_ANALYTICS_DB = 1;
 
 // returns a redisClient instance to interact with the database
-redisClient = redis.createClient({
+const redisClient = redis.createClient({
     host: config.host,
     port: 6379, // default redis port
     db: USER_ANALYTICS_DB

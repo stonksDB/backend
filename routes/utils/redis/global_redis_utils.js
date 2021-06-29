@@ -5,7 +5,7 @@ const GLOBAL_ANALYTICS_DB = 2;
 const TICKER_COUNTERS = 'ticker_set';
 
 // returns a redisClient instance to interact with the database
-exports.redisClient = redis.createClient({
+const globalRedisClient = redis.createClient({
     host: config.host,
     port: 6379, // default redis port
     db: GLOBAL_ANALYTICS_DB
@@ -15,17 +15,23 @@ exports.redisClient = redis.createClient({
  * 
  * @returns the ordered set of most liked tickers among the user of the application
  */
-exports.getMostSearchedTickers = () => {
+exports.getMostSearchedTickers = (limit) => {
     // callback function on Promise evaluation
     return new Promise((resolve, reject) => {
 
-        const filteringArgs = ["+inf", "-inf", "LIMIT", "0", "5"]
+        console.log(limit)
 
-        redisClient.zrevrangebyscore(TICKER_COUNTERS, filteringArgs, (err, res) => {
+        const filteringArgs = ["+inf", "-inf", "LIMIT", "0", limit]
+
+        console.log(filteringArgs)
+
+        globalRedisClient.zrevrangebyscore(TICKER_COUNTERS, filteringArgs, (err, res) => {
             if (err)
                 reject(err)
-            else
+            else {
+                console.log(res)
                 resolve(res)
+            }
         });
     });
 }
@@ -35,7 +41,7 @@ exports.getMostSearchedTickers = () => {
  * @param {String} ticker - ticker for which to update the counter
  */
 exports.updateTickerCounterGlobal = (ticker) => {
-    return redisClient.zscore(TICKER_COUNTERS, ticker, (err, prevCounter) => {
+    return globalRedisClient.zscore(TICKER_COUNTERS, ticker, (err, prevCounter) => {
         if (err)
             console.error(err) // log as error priority
 
@@ -47,7 +53,7 @@ exports.updateTickerCounterGlobal = (ticker) => {
 
         const filteringArgs = [TICKER_COUNTERS, counter, ticker]
 
-        redisClient.zadd(filteringArgs, (err) => {
+        globalRedisClient.zadd(filteringArgs, (err) => {
             if (err)
                 console.error(err);
         });
